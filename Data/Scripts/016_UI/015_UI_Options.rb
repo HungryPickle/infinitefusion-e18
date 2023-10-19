@@ -16,7 +16,55 @@ class PokemonSystem
   attr_accessor :quicksurf
   attr_accessor :battle_type
   attr_accessor :download_sprites
+#==================================
+# Modded Values - Infinite Showdown
+#==================================
+  attr_accessor :autobattler
+  attr_accessor :typedisplay
+  attr_accessor :battlegui
+  attr_accessor :darkmode
+  attr_accessor :improved_pokedex
+  attr_accessor :recover_consumables
+  attr_accessor :expall_redist
+  attr_accessor :shiny_trainer_pkmn
+#==================================
+# Modded - Infinite Showdown - Getting Depreciated/Needs Refactor
+#==================================
+  attr_accessor :importnodelete
+  attr_accessor :exportdelete
+  attr_accessor :savefolder
+  
+  attr_accessor :sb_stat_tracker
+  attr_accessor :player_wins
+  attr_accessor :enemy_wins
 
+  attr_accessor :sb_loopinput
+  attr_accessor :sb_loopbreaker
+
+  attr_accessor :sb_randomizeteam
+  attr_accessor :sb_randomizeshare
+  attr_accessor :sb_randomizesize
+  attr_accessor :sb_battlesize
+  attr_accessor :sb_select
+  attr_accessor :sb_level
+  attr_accessor :sb_playerfolder
+
+  attr_accessor :sb_maxing # allows to have more pokemons than the opponent
+  attr_accessor :sb_soullinked # pokemons of the team are soul-linked (not recommended)
+
+  attr_accessor :debugfeature
+
+  attr_accessor :debug
+
+  attr_accessor :is_in_battle
+
+  attr_accessor :importlvl
+  attr_accessor :importdevolve
+
+  attr_accessor :nopngexport
+  attr_accessor :nopngimport
+#==================================
+  
   def initialize
     @textspeed = 1 # Text speed (0=slow, 1=normal, 2=fast)
     @battlescene = 0 # Battle effects (animations) (0=on, 1=off)
@@ -32,7 +80,46 @@ class PokemonSystem
     @quicksurf = 0
     @battle_type = 0
     @download_sprites = 0
-
+#==================================
+# Modded - Infinite Showdown
+#==================================
+    @autobattler = 0
+    @typedisplay = 0
+    @battlegui = 0
+    @darkmode = 0
+    @improved_pokedex = 0
+    @recover_consumables = 0
+    @expall_redist = 0
+    @shiny_trainer_pkmn = 0
+#==================================
+# Modded - Infinite Showdown - Getting Depreciated/Needs Refactor
+#==================================
+    @sb_maxing = 0
+    @unfusetraded = 0
+    @sb_soullinked = 0
+    @globalvalues = 0
+    @sb_randomizeteam = 0
+    @sb_randomizeshare = 0
+    @sb_randomizesize = 0
+    @sb_battlesize = 0
+    @importlvl = 0
+    @importdevolve = 0
+    @sb_select = 0
+    @sb_playerfolder = 0
+    @sb_level = 0
+    @debugfeature = 0
+    @debug = 0
+    @importnodelete = 0
+	@sb_stat_tracker = 0
+	@player_wins = 0
+    @enemy_wins = 0
+    @sb_loopinput = 0
+    @sb_loopbreaker = 0
+    @savefolder = 0
+    @exportdelete = 0
+    @is_in_battle = false
+#==================================
+	
   end
 end
 
@@ -181,6 +268,33 @@ class SliderOption < Option
 end
 
 #===============================================================================
+# Modded - Infinite Showdown
+#===============================================================================
+class ButtonOption < Option
+  include PropertyMixin
+  attr_reader :name
+  
+  def initialize(name, selectProc, description = "")
+    super(description)
+    @name = name
+    @selectProc = selectProc
+  end
+
+  def next(current)
+    self.activate
+    return current
+  end
+
+  def prev(current)
+    return current
+  end
+
+  def activate
+    @selectProc.call
+  end
+end
+
+#===============================================================================
 # Main options list
 #===============================================================================
 class Window_PokemonOption < Window_DrawableCommand
@@ -196,7 +310,7 @@ class Window_PokemonOption < Window_DrawableCommand
     @selBaseColor = Color.new(31 * 8, 6 * 8, 3 * 8)
     @selShadowColor = Color.new(31 * 8, 17 * 8, 16 * 8)
     @optvalues = []
-  @mustUpdateOptions = false
+    @mustUpdateOptions = false
     @mustUpdateDescription = false
     @selected_position = 0
     @allow_arrows_jump=false
@@ -249,6 +363,13 @@ class Window_PokemonOption < Window_DrawableCommand
     rect = drawCursor(index, rect)
     optionname = (index == @options.length) ? _INTL("Confirm") : @options[index].name
     optionwidth = rect.width * 9 / 20
+#==================================
+# Modded - Infinite Showdown
+#==================================
+    if @options[index] && @options[index].is_a?(ButtonOption)
+      optionwidth = rect.width
+    end
+#==================================
     pbDrawShadowText(self.contents, rect.x, rect.y, optionwidth, rect.height, optionname,
                      @nameBaseColor, @nameShadowColor)
     return if index == @options.length
@@ -295,6 +416,12 @@ class Window_PokemonOption < Window_DrawableCommand
       xpos += optionwidth - self.contents.text_size(value).width
       pbDrawShadowText(self.contents, xpos, rect.y, optionwidth, rect.height, value,
                        @selBaseColor, @selShadowColor)
+#==================================
+# Modded - Infinite Fusion
+#==================================
+    elsif @options[index].is_a?(ButtonOption)
+      # Print no value
+#==================================
     else
       value = @options[index].values[self[index]]
       xpos = optionwidth + rect.x
@@ -321,6 +448,17 @@ class Window_PokemonOption < Window_DrawableCommand
         @selected_position = self[self.index]
         @mustUpdateOptions = true
         @mustUpdateDescription = true
+#==================================
+# Modded - Infinite Fusion
+#==================================
+      elsif Input.trigger?(Input::USE)
+        if @options[self.index].is_a?(ButtonOption)
+          @options[self.index].activate
+          dorefresh = true
+          @mustUpdateOptions = true
+          @mustUpdateDescription = true
+        end
+#==================================
       end
     end
     refresh if dorefresh
@@ -409,6 +547,7 @@ class PokemonOption_Scene
 
   def pbGetOptions(inloadscreen = false)
     options = []
+
     options << SliderOption.new(_INTL("Music Volume"), 0, 100, 5,
                                 proc { $PokemonSystem.bgmvolume },
                                 proc { |value|
@@ -471,8 +610,64 @@ class PokemonOption_Scene
                      "Automatically download custom sprites from the internet"
       )
 
+    options << EnumOption.new(_INTL("Battle Effects"), [_INTL("On"), _INTL("Off")],
+    proc { $PokemonSystem.battlescene },
+    proc { |value| $PokemonSystem.battlescene = value },
+    "Display move animations in battles"
+    )
 
+    options << EnumOption.new(_INTL("Default Movement"), [_INTL("Walking"), _INTL("Running")],
+                              proc { $PokemonSystem.runstyle },
+                              proc { |value| $PokemonSystem.runstyle = value },
+                              ["Default to walking when not holding the Run key",
+                               "Default to running when not holding the Run key"]
+    )
 
+    options << NumberOption.new(_INTL("Speech Frame"), 1, Settings::SPEECH_WINDOWSKINS.length,
+                                proc { $PokemonSystem.textskin },
+                                proc { |value|
+                                  $PokemonSystem.textskin = value
+                                  MessageConfig.pbSetSpeechFrame("Graphics/Windowskins/" + Settings::SPEECH_WINDOWSKINS[value])
+                                }
+    )
+
+    options << EnumOption.new(_INTL("Text Entry"), [_INTL("Cursor"), _INTL("Keyboard")],
+                              proc { $PokemonSystem.textinput },
+                              proc { |value| $PokemonSystem.textinput = value },
+                              ["Enter text by selecting letters on the screen",
+                               "Enter text by typing on the keyboard"]
+    )
+
+    options << EnumOption.new(_INTL("Screen Size"), [_INTL("S"), _INTL("M"), _INTL("L"), _INTL("XL"), _INTL("Full")],
+                              proc { [$PokemonSystem.screensize, 4].min },
+                              proc { |value|
+                                if $PokemonSystem.screensize != value
+                                  $PokemonSystem.screensize = value
+                                  pbSetResizeFactor($PokemonSystem.screensize)
+                                end
+                              }, "Sets the size of the screen"
+    )
+    options << EnumOption.new(_INTL("Quick Field Moves"), [_INTL("Off"), _INTL("On")],
+                              proc { $PokemonSystem.quicksurf },
+                              proc { |value| $PokemonSystem.quicksurf = value },
+                              "Use Field Moves quicker"
+    )
+
+    if $scene && $scene.is_a?(Scene_Map)
+      options.concat(pbGetInGameOptions())
+    end
+
+    options << ButtonOption.new(_INTL("Infinite Showdown's Settings"),
+                              proc {
+                                @showdown_menu = true
+                                openShowdownMenu()
+                              }, "Customize modded features"
+    )
+    return options
+  end
+
+  def pbGetInGameOptions()
+    options = []
 
     if $game_switches
       options <<
@@ -507,71 +702,17 @@ class PokemonOption_Scene
                        }, "Sets the number of Pokémon sent out in battles (when possible)"
         )
     end
-
-    options << EnumOption.new(_INTL("Battle Effects"), [_INTL("On"), _INTL("Off")],
-                              proc { $PokemonSystem.battlescene },
-                              proc { |value| $PokemonSystem.battlescene = value },
-                              "Display move animations in battles"
-    )
-
-    options << EnumOption.new(_INTL("Battle Style"), [_INTL("Switch"), _INTL("Set")],
-                              proc { $PokemonSystem.battlestyle },
-                              proc { |value| $PokemonSystem.battlestyle = value },
-                              ["Prompts to switch Pokémon before the opponent sends out the next one",
-                               "No prompt to switch Pokémon before the opponent sends the next one"]
-    )
-
-    options << EnumOption.new(_INTL("Default Movement"), [_INTL("Walking"), _INTL("Running")],
-                              proc { $PokemonSystem.runstyle },
-                              proc { |value| $PokemonSystem.runstyle = value },
-                              ["Default to walking when not holding the Run key",
-                               "Default to running when not holding the Run key"]
-    )
-
-    options << NumberOption.new(_INTL("Speech Frame"), 1, Settings::SPEECH_WINDOWSKINS.length,
-                                proc { $PokemonSystem.textskin },
-                                proc { |value|
-                                  $PokemonSystem.textskin = value
-                                  MessageConfig.pbSetSpeechFrame("Graphics/Windowskins/" + Settings::SPEECH_WINDOWSKINS[value])
-                                }
-    )
-    # NumberOption.new(_INTL("Menu Frame"),1,Settings::MENU_WINDOWSKINS.length,
-    #   proc { $PokemonSystem.frame },
-    #   proc { |value|
-    #     $PokemonSystem.frame = value
-    #     MessageConfig.pbSetSystemFrame("Graphics/Windowskins/" + Settings::MENU_WINDOWSKINS[value])
-    #   }
-    # ),
-    options << EnumOption.new(_INTL("Text Entry"), [_INTL("Cursor"), _INTL("Keyboard")],
-                              proc { $PokemonSystem.textinput },
-                              proc { |value| $PokemonSystem.textinput = value },
-                              ["Enter text by selecting letters on the screen",
-                               "Enter text by typing on the keyboard"]
-    )
-    if $game_variables
-      options << EnumOption.new(_INTL("Fusion icons"), [_INTL("Combined"), _INTL("DNA")],
-                                proc { $game_variables[VAR_FUSION_ICON_STYLE] },
-                                proc { |value| $game_variables[VAR_FUSION_ICON_STYLE] = value },
-                                ["Combines both Pokémon's party icons",
-                                 "Uses the same party icon for all fusions"]
-      )
-    end
-    options << EnumOption.new(_INTL("Screen Size"), [_INTL("S"), _INTL("M"), _INTL("L"), _INTL("XL"), _INTL("Full")],
-                              proc { [$PokemonSystem.screensize, 4].min },
-                              proc { |value|
-                                if $PokemonSystem.screensize != value
-                                  $PokemonSystem.screensize = value
-                                  pbSetResizeFactor($PokemonSystem.screensize)
-                                end
-                              }, "Sets the size of the screen"
-    )
-    options << EnumOption.new(_INTL("Quick Surf"), [_INTL("Off"), _INTL("On")],
-                              proc { $PokemonSystem.quicksurf },
-                              proc { |value| $PokemonSystem.quicksurf = value },
-                              "Start surfing automatically when interacting with water"
-    )
-
     return options
+  end
+
+  def openShowdownMenu()
+    return if !@showdown_menu
+    pbFadeOutIn {
+      scene = ShowdownOptionsScene.new
+      screen = PokemonOptionScreen.new(scene)
+      screen.pbStartScreen
+    }
+    @showdown_menu = false
   end
 
   def pbAddOnOptions(options)
@@ -651,5 +792,522 @@ class PokemonOptionScreen
     @scene.pbStartScene(inloadscreen)
     @scene.pbOptions
     @scene.pbEndScene
+  end
+end
+
+#===============================================================================
+#
+#===============================================================================
+class ShowdownOptionsScene < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(35, 130, 200)
+    @sprites["option"].nameShadowColor = Color.new(20, 75, 115)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("IF Showdown settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Customize modded features")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+    options << ButtonOption.new(_INTL("Shinies"),
+      proc {
+        @showdown_menu = true
+        openShowdown1()
+      }, "Customize shinies features"
+    )
+    options << ButtonOption.new(_INTL("Battles & Pokemons"),
+      proc {
+        @showdown_menu = true
+        openShowdown2()
+      }, "Customize battles & pokemons features"
+    )
+    options << ButtonOption.new(_INTL("Graphics"),
+      proc {
+        @showdown_menu = true
+        openShowdown3()
+      }, "Customize graphics features"
+    )
+    options << ButtonOption.new(_INTL("Self-Battle & Import"),
+      proc {
+        @showdown_menu = true
+        openShowdown5()
+      }, "Self-battling & import features"
+    )
+    options << ButtonOption.new(_INTL("Others"),
+      proc {
+        @showdown_menu = true
+        openShowdown4()
+      }, "Customize others features"
+    )
+
+    # if $scene && $scene.is_a?(Scene_Map)
+    #   options.concat(pbGetInGameOptions())
+    # end
+    return options
+  end
+
+  # def pbGetInGameOptions()
+  #   options = []
+  #   return options
+  # end
+
+  def openShowdown1()
+    return if !@showdown_menu
+    pbFadeOutIn {
+      scene = ShowdownOptSc_1.new
+      screen = PokemonOptionScreen.new(scene)
+      screen.pbStartScreen
+    }
+    @showdown_menu = false
+  end
+  def openShowdown2()
+    return if !@showdown_menu
+    pbFadeOutIn {
+      scene = ShowdownOptSc_2.new
+      screen = PokemonOptionScreen.new(scene)
+      screen.pbStartScreen
+    }
+    @showdown_menu = false
+  end
+  def openShowdown3()
+    return if !@showdown_menu
+    pbFadeOutIn {
+      scene = ShowdownOptSc_3.new
+      screen = PokemonOptionScreen.new(scene)
+      screen.pbStartScreen
+    }
+    @showdown_menu = false
+  end
+  def openShowdown4()
+    return if !@showdown_menu
+    pbFadeOutIn {
+      scene = ShowdownOptSc_4.new
+      screen = PokemonOptionScreen.new(scene)
+      screen.pbStartScreen
+    }
+    @showdown_menu = false
+  end
+  def openShowdown5()
+    return if !@showdown_menu
+    pbFadeOutIn {
+      scene = ShowdownOptSc_5.new
+      screen = PokemonOptionScreen.new(scene)
+      screen.pbStartScreen
+    }
+    @showdown_menu = false
+  end
+end
+
+
+#===============================================================================
+# SHINIES
+#===============================================================================
+class ShowdownOptSc_1 < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(200, 200, 35)
+    @sprites["option"].nameShadowColor = Color.new(115, 115, 20)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("Shiny settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Customize modded features")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+
+    if $scene && $scene.is_a?(Scene_Map)
+      options.concat(pbGetInGameOptions())
+    end
+    return options
+  end
+  
+  def pbGetInGameOptions()
+    options = []
+
+    options << EnumOption.new(_INTL("Shiny Trainer Pokemon"), [_INTL("Off"), _INTL("Ace"), _INTL("All")],
+                      proc { $PokemonSystem.shiny_trainer_pkmn },
+                      proc { |value| $PokemonSystem.shiny_trainer_pkmn = value },
+                      ["Trainer pokemon will have their normal shiny rates",
+                      "Draws the opposing trainers ace pokemon as shiny",
+                      "All trainers pokemon in their party will be shiny"]
+    )
+    return options
+  end
+end
+
+#===============================================================================
+# BATTLE
+#===============================================================================
+class ShowdownOptSc_2 < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(200, 35, 35)
+    @sprites["option"].nameShadowColor = Color.new(115, 20, 20)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("Battles & Pokemons settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Customize modded features")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+
+    if $scene && $scene.is_a?(Scene_Map)
+      options.concat(pbGetInGameOptions())
+    end
+    return options
+  end
+  
+  def pbGetInGameOptions()
+    options = []
+    
+    options << EnumOption.new(_INTL("Improved Pokedex"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.improved_pokedex },
+                      proc { |value| $PokemonSystem.improved_pokedex = value },
+                      ["Don't use the Improved Pokedex",
+                      "Registers a fusions base Pokemon to the Pokedex when catching/evolving"]
+    )
+
+    options << EnumOption.new(_INTL("Recover Consumables"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.recover_consumables },
+                      proc { |value| $PokemonSystem.recover_consumables = value },
+                      ["Don't recover consumable items after battle",
+                      "Recover consumable items after battle"]
+    )
+
+    options << SliderOption.new(_INTL("ExpAll Redistribution"), 0, 10, 1,
+                      proc { $PokemonSystem.expall_redist },
+                      proc { |value| $PokemonSystem.expall_redist = value },
+                      "0 = Off, 10 = Max | Redistributes total exp from expAll to lower level pokemon"
+    )
+
+    options << EnumOption.new(_INTL("Auto-Battle"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.autobattler },
+                      proc { |value| $PokemonSystem.autobattler = value },
+                      ["You fight your own battles",
+                      "Allows Trapstarr to take control of your pokemon"]
+    )
+
+    return options
+  end
+end
+
+
+#===============================================================================
+# GRAPHICS
+#===============================================================================
+class ShowdownOptSc_3 < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(35, 200, 35)
+    @sprites["option"].nameShadowColor = Color.new(20, 115, 20)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("Graphics settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Customize modded features")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+
+    options << EnumOption.new(_INTL("Type Display"), [_INTL("Off"), _INTL("Icons"), _INTL("TCG"), _INTL("Sqr"), _INTL("Txt")],
+                      proc { $PokemonSystem.typedisplay },
+                      proc { |value| $PokemonSystem.typedisplay = value },
+                      ["Don't draw the type indicator in battle",
+                      "Draws handmade custom type icons in battle | Artwork by Lolpy1",
+                      "Draws TCG themed type icons in battle",
+                      "Draws the square type icons in battle | Triple Fusion artwork by Lolpy1",
+                      "Draws the text type display in battle"]
+    )
+
+    options << EnumOption.new(_INTL("Swap BattleGUI"), [_INTL("Off"), _INTL("Type 1"), _INTL("Type 2")],
+                      proc { $PokemonSystem.battlegui },
+                      proc { |value| $PokemonSystem.battlegui = value },
+                      ["This feature is a work in progress, more to come soon",
+                      "Swaps the HP/Exp bar to v1 | created by Mirasein",
+                      "Swaps the HP/Exp bar to v2 | created by Mirasein"]
+   )
+   
+    options << EnumOption.new(_INTL("Dark Mode"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.darkmode },
+                      proc { |value| $PokemonSystem.darkmode = value },
+                      ["Default UI",
+                      "Swaps the message graphics during battle"]
+    )
+
+    return options
+  end
+end
+
+#===============================================================================
+# OTHERS
+#===============================================================================
+class ShowdownOptSc_4 < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(35, 200, 200)
+    @sprites["option"].nameShadowColor = Color.new(20, 115, 115)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("Others settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Customize modded features")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+
+    if $scene && $scene.is_a?(Scene_Map)
+      options.concat(pbGetInGameOptions())
+    end
+    return options
+  end
+
+  
+  def pbGetInGameOptions()
+    options = []
+    #
+    return options
+  end
+end
+
+#===============================================================================
+# SELF BATTLE
+#===============================================================================
+class ShowdownOptSc_5 < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(200, 35, 200)
+    @sprites["option"].nameShadowColor = Color.new(115, 20, 115)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("Self-Battle & Import settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Customize modded features")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+
+    if $scene && $scene.is_a?(Scene_Map)
+      options.concat(pbGetInGameOptions())
+    else
+      options << ButtonOption.new(_INTL("### EMPTY ###"),
+      proc {}
+      )
+    end
+    return options
+  end
+
+  
+  def pbGetInGameOptions()
+    options = []
+
+    options << EnumOption.new(_INTL("Battle Size"), [_INTL("1"), _INTL("2"), _INTL("3"), _INTL("4"), _INTL("5"), _INTL("6")],
+                      proc { $PokemonSystem.sb_battlesize },
+                      proc { |value| $PokemonSystem.sb_battlesize = value },
+                      ["1 enemy Pokemon",
+                        "2 enemy Pokemons",
+                        "3 enemy Pokemons",
+                        "4 enemy Pokemons",
+                        "5 enemy Pokemons",
+                        "6 enemy Pokemons"]
+    )
+    options << EnumOption.new(_INTL("Player Size"), [_INTL("1"), _INTL("2"), _INTL("3"), _INTL("4"), _INTL("5"), _INTL("6")],
+                      proc { $PokemonSystem.sb_randomizesize },
+                      proc { |value| $PokemonSystem.sb_randomizesize = value },
+                      ["1 player Pokemon",
+                        "2 player Pokemons",
+                        "3 player Pokemons",
+                        "4 player Pokemons",
+                        "5 player Pokemons",
+                        "6 player Pokemons"]
+    )
+    options << EnumOption.new(_INTL("Level"), [_INTL("Default"), _INTL("1"), _INTL("5"), _INTL("10"), _INTL("50"), _INTL("70"), _INTL("100")],
+                      proc { $PokemonSystem.sb_level },
+                      proc { |value| $PokemonSystem.sb_level = value },
+                      ["Pokemons keep their original level",
+                        "Pokemons are level 1",
+                        "Pokemons are level 5",
+                        "Pokemons are level 10",
+                        "Pokemons are level 50",
+                        "Pokemons are level 70",
+                        "Pokemons are level 100"]
+    )
+    options << EnumOption.new(_INTL("Randomize Team"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.sb_randomizeteam },
+                      proc { |value| $PokemonSystem.sb_randomizeteam = value },
+                      ["Doesn't randomize your player team",
+                      "Randomize your player team as well"]
+    )
+    options << EnumOption.new(_INTL("Randomize Share"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.sb_randomizeshare },
+                      proc { |value| $PokemonSystem.sb_randomizeshare = value },
+                      ["Doesn't allow randomize to make you share the same Pokemons",
+                      "Randomize might give you and the enemy the same Pokemons"]
+    )
+    options << EnumOption.new(_INTL("Players Folder"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.sb_playerfolder },
+                      proc { |value| $PokemonSystem.sb_playerfolder = value },
+                      ["Does not use the Players folder to randomize the player's team.",
+                      "Uses the Players Folder to randomize the player's team."]
+    )
+    options << EnumOption.new(_INTL("Team Select"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.sb_select },
+                      proc { |value| $PokemonSystem.sb_select = value },
+                      ["Doesn't prompt you to select your team",
+                      "Let you select your team"]
+    )
+    options << EnumOption.new(_INTL("Limitless Select"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.sb_maxing },
+                      proc { |value| $PokemonSystem.sb_maxing = value },
+                      ["You may only use the same party size",
+                      "You may perform 6v1, etc (bypass the party size)"]
+    )
+    # options << EnumOption.new(_INTL("Soul-Linked"), [_INTL("Off"), _INTL("On")],
+    #                   proc { $PokemonSystem.sb_soullinked },
+    #                   proc { |value| $PokemonSystem.sb_soullinked = value },
+    #                   ["Pokemons are all individual/indepedent copies",
+    #                   "The same Pokemons between your team are linked"]
+    # )
+    options << EnumOption.new(_INTL("Stat Tracker"), [_INTL("Off"), _INTL("On")],
+    proc { $PokemonSystem.sb_stat_tracker },
+    proc { |value| $PokemonSystem.sb_stat_tracker = value },
+    ["Does not display the stat tracker during AutoBattle + Battle Loop",
+    "Shows stats such as Win/Loss tracker for Self-battle/Auto-battle"]
+    )
+    options << EnumOption.new(_INTL("Import Level"), [_INTL("Default"), _INTL("1"), _INTL("5"), _INTL("50"), _INTL("100")],
+                      proc { $PokemonSystem.importlvl },
+                      proc { |value| $PokemonSystem.importlvl = value },
+                      ["Imported Pokemons keep their original level.",
+                      "Imported Pokemons are set to level 1.",
+                      "Imported Pokemons are set to level 5.",
+                      "Imported Pokemons are set to level 50.",
+                      "Imported Pokemons are set to level 100."]
+    )
+    options << EnumOption.new(_INTL("Import De-Evolve"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.importdevolve },
+                      proc { |value| $PokemonSystem.importdevolve = value },
+                      ["Imported Pokemons remain intact.",
+                      "Imported Pokemons are de-evolved into babies."]
+    )
+    options << EnumOption.new(_INTL("Import Without Deletion"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.importnodelete },
+                      proc { |value| $PokemonSystem.importnodelete = value },
+                      ["Imported Pokemons will have their .json deleted.",
+                      "Imported Pokemons will remain as .json in Import folder."]
+    )
+    options << EnumOption.new(_INTL("Delete on Export"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.exportdelete },
+                      proc { |value| $PokemonSystem.exportdelete = value },
+                      ["Exported Pokemons will not be deleted.",
+                      "Exported Pokemons will be deleted."]
+    )
+    options << EnumOption.new(_INTL("Export Sprite on Export"), [_INTL("On"), _INTL("Off")],
+                      proc { $PokemonSystem.nopngexport },
+                      proc { |value| $PokemonSystem.nopngexport = value },
+                      ["The .png of the Pokemon will also be exported.",
+                      "The .png (appearence) of the Pokemon will not be exported."]
+    )
+    options << EnumOption.new(_INTL("Import Sprite on Import"), [_INTL("On"), _INTL("Read-Only"), _INTL("Off")],
+                      proc { $PokemonSystem.nopngimport },
+                      proc { |value| $PokemonSystem.nopngimport = value },
+                      ["The .png of the Pokemon will also be imported.",
+                      "The .png of the Pokemon will be read from the folder but not imported.",
+                      "The .png (appearence) of the Pokemon will not be imported."]
+    )
+
+    return options
   end
 end
