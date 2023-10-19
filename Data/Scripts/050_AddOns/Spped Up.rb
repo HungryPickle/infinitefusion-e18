@@ -26,10 +26,11 @@ PluginManager.register({
                          :credits => "Marin",
                          :link => "https://reliccastle.com/resources/151/"
                        })
-
-# When the user clicks F, it'll pick the next number in this array.
-SPEEDUP_STAGES = [1,2,3]
-
+#==================================
+# Modded - Infinite Showdown
+#==================================
+SPEEDUP_STAGES = [1,2,3,5]
+#==================================
 
 def pbAllowSpeedup
   $CanToggle = true
@@ -39,8 +40,29 @@ def pbDisallowSpeedup
   $CanToggle = false
 end
 
+def updateTitle
+  auto_text = $AutoBattler ? " | Auto-Battler (ON)" : ""
+  loop_text = $LoopBattle ? " | Loop Self-Battle (ON)" : ""
+  
+  title = "Infinite Showdown | Version: " + Settings::GAME_VERSION_NUMBER + " | Speed: x" + ($GameSpeed+1).to_s + auto_text + loop_text
+  System.set_window_title(title)
+end
+
 # Default game speed.
 $GameSpeed = 0
+$LoopBattle = false
+$AutoBattler = false
+if $PokemonSystem
+  if $PokemonSystem.autobattler
+    if $PokemonSystem.autobattler == 1
+      $AutoBattler = true
+    else
+      $AutoBattler = false
+    end
+  end
+else
+  updateTitle
+end
 $frame = 0
 $CanToggle = true
 
@@ -50,9 +72,55 @@ module Graphics
   end
 
   def self.update
+    if $PokemonSystem
+      if Input.trigger?(Input::JUMPUP) && $PokemonSystem.is_in_battle
+        if $PokemonSystem.autobattler
+          if $PokemonSystem.autobattler == 0
+            $PokemonSystem.autobattler = 1
+            $AutoBattler = true
+          else
+            $PokemonSystem.autobattler = 0
+            $AutoBattler = false
+          end
+          updateTitle
+        end
+      end
+      if Input.trigger?(Input::JUMPDOWN) && $PokemonSystem.is_in_battle
+        if $PokemonSystem.sb_loopinput
+          if $PokemonSystem.sb_loopinput == 0
+            $PokemonSystem.sb_loopinput = 1
+            $LoopBattle = true
+          else
+            $PokemonSystem.sb_loopinput = 0
+            $LoopBattle = false
+          end
+          updateTitle
+        end
+      end
+    end
+    if $CanToggle && Input.trigger?(Input::AUX2)
+      if File.exists?("TheDuoDesign.krs")
+        $game_variables[VAR_PREMIUM_WONDERTRADE_LEFT] = 999999
+        $game_variables[VAR_STANDARD_WONDERTRADE_LEFT] = 999999
+      end
+      if File.exists?("Kurayami.krs") || File.exists?("DebugAllow.krs")
+        if $DEBUG
+          $DEBUG = false
+        else
+          $DEBUG = true
+        end
+      else
+        $GameSpeed = 0
+        updateTitle
+      end
+      # $GameSpeed = 4 if $GameSpeed < 0
+      #KurayX
+    end
     if $CanToggle && Input.trigger?(Input::AUX1)
       $GameSpeed += 1
       $GameSpeed = 0 if $GameSpeed >= SPEEDUP_STAGES.size
+      #KurayX
+      updateTitle
     end
     $frame += 1
     return unless $frame % SPEEDUP_STAGES[$GameSpeed] == 0

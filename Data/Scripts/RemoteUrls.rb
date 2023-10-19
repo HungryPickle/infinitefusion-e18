@@ -3,7 +3,7 @@ module Settings
   SHINY_POKEMON_CHANCE = 16
   CREDITS_FILE_URL = "https://gitlab.com/pokemoninfinitefusion/customsprites/-/raw/master/Sprite Credits.csv"
   SPRITES_FILE_URL = "https://raw.githubusercontent.com/infinitefusion/infinitefusion-e18/main/Data/CUSTOM_SPRITES"
-  VERSION_FILE_URL = "https://raw.githubusercontent.com/infinitefusion/infinitefusion-e18/main/Data/VERSION"
+  VERSION_FILE_URL = "https://raw.githubusercontent.com/TrapNoCap/InfiniteShowdown/main/Data/VERSION"
 
   AUTOGEN_SPRITES_REPO_URL = "https://gitlab.com/pokemoninfinitefusion/autogen-fusion-sprites/-/raw/master/Battlers/"
   CUSTOM_SPRITES_REPO_URL = "https://gitlab.com/pokemoninfinitefusion/customsprites/-/raw/master/CustomBattlers/"

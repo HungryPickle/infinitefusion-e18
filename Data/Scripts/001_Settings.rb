@@ -6,7 +6,7 @@
 module Settings
   # The version of your game. It has to adhere to the MAJOR.MINOR.PATCH format.
   GAME_VERSION = '5.0.0'
-  GAME_VERSION_NUMBER = "5.3.1.2"
+  GAME_VERSION_NUMBER = "0.1.1"
 
   POKERADAR_LIGHT_ANIMATION_RED_ID = 17
   POKERADAR_LIGHT_ANIMATION_GREEN_ID = 18
@@ -31,7 +31,7 @@ module Settings
   VERSION_FILE_PATH = "Data/VERSION"
   CUSTOM_SPRITES_FILE_PATH = "Data/CUSTOM_SPRITES"
 
-  HTTP_CONFIGS_FILE_URL = "https://raw.githubusercontent.com/infinitefusion/infinitefusion-e18/main/Data/Scripts/RemoteUrls.rb"
+  HTTP_CONFIGS_FILE_URL = "https://raw.githubusercontent.com/TrapNoCap/InfiniteShowdown/main/Data/Scripts/RemoteUrls.rb"
 
   HTTP_CONFIGS_FILE_PATH = "Data/Scripts/RemoteUrls.rb"
 
