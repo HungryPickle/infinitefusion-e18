@@ -52,12 +52,6 @@ class PokemonSystem
   attr_accessor :sb_maxing # allows to have more pokemons than the opponent
   attr_accessor :sb_soullinked # pokemons of the team are soul-linked (not recommended)
 
-  attr_accessor :debugfeature
-
-  attr_accessor :debug
-
-  attr_accessor :is_in_battle
-
   attr_accessor :importlvl
   attr_accessor :importdevolve
 
@@ -107,8 +101,6 @@ class PokemonSystem
     @sb_select = 0
     @sb_playerfolder = 0
     @sb_level = 0
-    @debugfeature = 0
-    @debug = 0
     @importnodelete = 0
 	@sb_stat_tracker = 0
 	@player_wins = 0
@@ -117,7 +109,6 @@ class PokemonSystem
     @sb_loopbreaker = 0
     @savefolder = 0
     @exportdelete = 0
-    @is_in_battle = false
 #==================================
 	
   end
