@@ -21,16 +21,16 @@
 #==============================================================================#
 
 PluginManager.register({
-                         :name => "Better Fast-forward Mode",
-                         :version => "1.1",
-                         :credits => "Marin",
-                         :link => "https://reliccastle.com/resources/151/"
-                       })
+  name: "Better Fast-forward Mode",
+  version: "1.1",
+  credits: "Marin",
+  link: "https://reliccastle.com/resources/151/"
+})
+
 #==================================
 # Modded - Infinite Showdown
 #==================================
 SPEEDUP_STAGES = [1,2,3,5]
-#==================================
 
 def pbAllowSpeedup
   $CanToggle = true
@@ -41,25 +41,20 @@ def pbDisallowSpeedup
 end
 
 def updateTitle
-  auto_text = $AutoBattler ? " | Auto-Battler (ON)" : ""
-  loop_text = $LoopBattle ? " | Loop Self-Battle (ON)" : ""
-  
-  title = "Infinite Showdown | Version: " + Settings::GAME_VERSION_NUMBER + " | Speed: x" + ($GameSpeed+1).to_s + auto_text + loop_text
+  auto_text = $AutoBattler ? " | Auto-Battle (ON)" : ""
+  loop_text = $LoopBattle ? " | Loop Battle (ON)" : ""
+  speed_display = SPEEDUP_STAGES[$GameSpeed].to_s 
+  title = "Infinite Showdown | Version: #{Settings::GAME_VERSION_NUMBER} | Speed: x#{speed_display}" + auto_text + loop_text
   System.set_window_title(title)
 end
+
 
 # Default game speed.
 $GameSpeed = 0
 $LoopBattle = false
 $AutoBattler = false
-if $PokemonSystem
-  if $PokemonSystem.autobattler
-    if $PokemonSystem.autobattler == 1
-      $AutoBattler = true
-    else
-      $AutoBattler = false
-    end
-  end
+if $PokemonSystem && $PokemonSystem.autobattler
+  $AutoBattler = $PokemonSystem.autobattler == 1
 else
   updateTitle
 end
@@ -73,55 +68,36 @@ module Graphics
 
   def self.update
     if $PokemonSystem
-      if Input.trigger?(Input::JUMPUP) && $PokemonSystem.is_in_battle
-        if $PokemonSystem.autobattler
-          if $PokemonSystem.autobattler == 0
-            $PokemonSystem.autobattler = 1
-            $AutoBattler = true
-          else
-            $PokemonSystem.autobattler = 0
-            $AutoBattler = false
-          end
-          updateTitle
-        end
-      end
-      if Input.trigger?(Input::JUMPDOWN) && $PokemonSystem.is_in_battle
-        if $PokemonSystem.sb_loopinput
-          if $PokemonSystem.sb_loopinput == 0
-            $PokemonSystem.sb_loopinput = 1
-            $LoopBattle = true
-          else
-            $PokemonSystem.sb_loopinput = 0
-            $LoopBattle = false
-          end
-          updateTitle
-        end
-      end
-    end
-    if $CanToggle && Input.trigger?(Input::AUX2)
-      if File.exists?("TheDuoDesign.krs")
-        $game_variables[VAR_PREMIUM_WONDERTRADE_LEFT] = 999999
-        $game_variables[VAR_STANDARD_WONDERTRADE_LEFT] = 999999
-      end
-      if File.exists?("Kurayami.krs") || File.exists?("DebugAllow.krs")
-        if $DEBUG
-          $DEBUG = false
-        else
-          $DEBUG = true
-        end
-      else
-        $GameSpeed = 0
+      if Input.trigger?(Input::JUMPUP) && $PokemonSystem.autobattler
+        $AutoBattler = !$AutoBattler
+        $PokemonSystem.autobattler = $AutoBattler ? 1 : 0
         updateTitle
       end
-      # $GameSpeed = 4 if $GameSpeed < 0
-      #KurayX
+      
+      if Input.trigger?(Input::JUMPDOWN) && $PokemonSystem.sb_loopinput
+        $LoopBattle = !$LoopBattle
+        $PokemonSystem.sb_loopinput = $LoopBattle ? 1 : 0
+        updateTitle
+      end
     end
-    if $CanToggle && Input.trigger?(Input::AUX1)
+
+    handleGameSpeedInput if $CanToggle
+    handleFrameUpdate
+  end
+
+  def self.handleGameSpeedInput
+    if Input.trigger?(Input::AUX1)
       $GameSpeed += 1
       $GameSpeed = 0 if $GameSpeed >= SPEEDUP_STAGES.size
-      #KurayX
       updateTitle
     end
+
+    if Input.trigger?(Input::AUX2)
+      # debug or file related checks
+    end
+  end
+  
+  def self.handleFrameUpdate
     $frame += 1
     return unless $frame % SPEEDUP_STAGES[$GameSpeed] == 0
     fast_forward_update
