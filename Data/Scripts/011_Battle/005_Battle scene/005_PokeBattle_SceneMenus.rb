@@ -119,17 +119,53 @@ class CommandMenuDisplay < BattleMenuBase
     # Create message box (shows "What will X do?")
     @msgBox = Window_UnformattedTextPokemon.newWithSize("",
        self.x+16,self.y+2,220,Graphics.height-self.y,viewport)
-    @msgBox.baseColor   = TEXT_BASE_COLOR
+#==================================
+# Trapstarr Dark Mode text color swap
+#==================================
+    # @msgBox.baseColor   = TEXT_BASE_COLOR
+    if $PokemonSystem.darkmode && $PokemonSystem.darkmode == 1
+      @msgBox.baseColor = PokeBattle_SceneConstants::DARKMODE_MESSAGE_BASE_COLOR
+    else
+      @msgBox.baseColor = PokeBattle_SceneConstants::MESSAGE_BASE_COLOR
+    end
+#==================================
     @msgBox.shadowColor = TEXT_SHADOW_COLOR
     @msgBox.windowskin  = nil
     addSprite("msgBox",@msgBox)
     if USE_GRAPHICS
-      # Create background graphic
-      background = IconSprite.new(self.x,self.y,viewport)
-      background.setBitmap("Graphics/Pictures/Battle/overlay_command")
-      addSprite("background",background)
+      # Create background graphic  
+#==================================
+# Trapstarr GUI Swap & Dark Mode
+#==================================	  
+      # background = IconSprite.new(self.x,self.y,viewport)
+      # background.setBitmap("Graphics/Pictures/Battle/overlay_command")
+      # addSprite("background",background)
       # Create bitmaps
-      @buttonBitmap = AnimatedBitmap.new(_INTL("Graphics/Pictures/Battle/cursor_command"))
+      # @buttonBitmap = AnimatedBitmap.new(_INTL("Graphics/Pictures/Battle/cursor_command"))
+#==================================
+      background = IconSprite.new(self.x, self.y, viewport)
+      if $PokemonSystem.darkmode && $PokemonSystem.darkmode == 1
+        background.setBitmap("Graphics/Pictures/Battle/overlay_command_darkmode")
+      elsif $PokemonSystem.battlegui && $PokemonSystem.battlegui == 1 && (!$PokemonSystem.darkmode || $PokemonSystem.darkmode == 0)
+        background.setBitmap("Graphics/Pictures/Battle/overlay_command_M2")
+      elsif $PokemonSystem.battlegui && $PokemonSystem.battlegui == 2
+        background.setBitmap("Graphics/Pictures/Battle/overlay_command_M2")
+      else
+        background.setBitmap("Graphics/Pictures/Battle/overlay_command")
+      end
+      addSprite("background", background)
+      # Create bitmaps
+      buttonPath = "Graphics/Pictures/Battle/cursor_command"
+      # Trapstarr BattleGUI swaps
+      if $PokemonSystem.battlegui && $PokemonSystem.battlegui == 2
+        buttonPath += "_M2"
+      elsif $PokemonSystem.darkmode && $PokemonSystem.darkmode == 1
+        buttonPath += "_darkmode"
+      elsif $PokemonSystem.battlegui == 1
+        buttonPath += "_darkmode" 
+      end
+      @buttonBitmap = AnimatedBitmap.new(_INTL(buttonPath))
+#==================================
       # Create action buttons
       @buttons = Array.new(4) do |i|   # 4 command options, therefore 4 buttons
         button = SpriteWrapper.new(viewport)
