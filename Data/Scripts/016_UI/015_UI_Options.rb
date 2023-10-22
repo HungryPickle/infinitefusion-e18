@@ -648,11 +648,11 @@ class PokemonOption_Scene
       options.concat(pbGetInGameOptions())
     end
 
-    options << ButtonOption.new(_INTL("Infinite Showdown's Settings"),
+    options << ButtonOption.new(_INTL("Infinite Showdown Options"),
                               proc {
                                 @showdown_menu = true
                                 openShowdownMenu()
-                              }, "Customize modded features"
+                              }, "Configure IFS options"
     )
     return options
   end
@@ -803,8 +803,8 @@ class ShowdownOptionsScene < PokemonOption_Scene
       @sprites["option"][i] = (@PokemonOptions[i].get || 0)
     end
     @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("IF Showdown settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Customize modded features")
+      _INTL("IF Showdown options"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Configure Infinite Showdown Options")
 
 
     pbFadeInAndShow(@sprites) { pbUpdate }
@@ -817,35 +817,29 @@ class ShowdownOptionsScene < PokemonOption_Scene
 
   def pbGetOptions(inloadscreen = false)
     options = []
-    options << ButtonOption.new(_INTL("Shinies"),
-      proc {
-        @showdown_menu = true
-        openShowdown1()
-      }, "Customize shinies features"
-    )
-    options << ButtonOption.new(_INTL("Battles & Pokemons"),
-      proc {
-        @showdown_menu = true
-        openShowdown2()
-      }, "Customize battles & pokemons features"
-    )
     options << ButtonOption.new(_INTL("Graphics"),
       proc {
         @showdown_menu = true
-        openShowdown3()
-      }, "Customize graphics features"
+        openShowdownMenu1()
+      }, "Configure Graphics Settings"
     )
-    options << ButtonOption.new(_INTL("Self-Battle & Import"),
+    options << ButtonOption.new(_INTL("QoL/Others"),
       proc {
         @showdown_menu = true
-        openShowdown5()
-      }, "Self-battling & import features"
+        openShowdownMenu2()
+      }, "Customize Quality of Life options"
     )
-    options << ButtonOption.new(_INTL("Others"),
+    options << ButtonOption.new(_INTL("Battle Looping"),
       proc {
         @showdown_menu = true
-        openShowdown4()
-      }, "Customize others features"
+        openShowdownMenu3()
+      }, "Configure Battle Looping Options"
+    )
+    options << ButtonOption.new(_INTL("Import/Export"),
+      proc {
+        @showdown_menu = true
+        openShowdownMenu4()
+      }, "Configure Import & Export Settings"
     )
 
     # if $scene && $scene.is_a?(Scene_Map)
@@ -859,7 +853,7 @@ class ShowdownOptionsScene < PokemonOption_Scene
   #   return options
   # end
 
-  def openShowdown1()
+  def openShowdownMenu1()
     return if !@showdown_menu
     pbFadeOutIn {
       scene = ShowdownOptSc_1.new
@@ -868,7 +862,7 @@ class ShowdownOptionsScene < PokemonOption_Scene
     }
     @showdown_menu = false
   end
-  def openShowdown2()
+  def openShowdownMenu2()
     return if !@showdown_menu
     pbFadeOutIn {
       scene = ShowdownOptSc_2.new
@@ -877,7 +871,7 @@ class ShowdownOptionsScene < PokemonOption_Scene
     }
     @showdown_menu = false
   end
-  def openShowdown3()
+  def openShowdownMenu3()
     return if !@showdown_menu
     pbFadeOutIn {
       scene = ShowdownOptSc_3.new
@@ -886,19 +880,10 @@ class ShowdownOptionsScene < PokemonOption_Scene
     }
     @showdown_menu = false
   end
-  def openShowdown4()
+  def openShowdownMenu4()
     return if !@showdown_menu
     pbFadeOutIn {
       scene = ShowdownOptSc_4.new
-      screen = PokemonOptionScreen.new(scene)
-      screen.pbStartScreen
-    }
-    @showdown_menu = false
-  end
-  def openShowdown5()
-    return if !@showdown_menu
-    pbFadeOutIn {
-      scene = ShowdownOptSc_5.new
       screen = PokemonOptionScreen.new(scene)
       screen.pbStartScreen
     }
@@ -908,7 +893,7 @@ end
 
 
 #===============================================================================
-# SHINIES
+# GRAPHICS
 #===============================================================================
 class ShowdownOptSc_1 < PokemonOption_Scene
   def initialize
@@ -917,15 +902,15 @@ class ShowdownOptSc_1 < PokemonOption_Scene
 
   def pbStartScene(inloadscreen = false)
     super
-    @sprites["option"].nameBaseColor = Color.new(200, 200, 35)
-    @sprites["option"].nameShadowColor = Color.new(115, 115, 20)
+    @sprites["option"].nameBaseColor = Color.new(35, 200, 35)
+    @sprites["option"].nameShadowColor = Color.new(20, 115, 20)
     @changedColor = true
     for i in 0...@PokemonOptions.length
       @sprites["option"][i] = (@PokemonOptions[i].get || 0)
     end
     @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Shiny settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Customize modded features")
+      _INTL("Graphics settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Configure Graphics Settings")
 
 
     pbFadeInAndShow(@sprites) { pbUpdate }
@@ -939,28 +924,38 @@ class ShowdownOptSc_1 < PokemonOption_Scene
   def pbGetOptions(inloadscreen = false)
     options = []
 
-    if $scene && $scene.is_a?(Scene_Map)
-      options.concat(pbGetInGameOptions())
-    end
-    return options
-  end
-  
-  def pbGetInGameOptions()
-    options = []
-
-    options << EnumOption.new(_INTL("Shiny Trainer Pokemon"), [_INTL("Off"), _INTL("Ace"), _INTL("All")],
-                      proc { $PokemonSystem.shiny_trainer_pkmn },
-                      proc { |value| $PokemonSystem.shiny_trainer_pkmn = value },
-                      ["Trainer pokemon will have their normal shiny rates",
-                      "Draws the opposing trainers ace pokemon as shiny",
-                      "All trainers pokemon in their party will be shiny"]
+    options << EnumOption.new(_INTL("Type Display"), [_INTL("Off"), _INTL("Icons"), _INTL("TCG"), _INTL("Sqr"), _INTL("Txt")],
+                      proc { $PokemonSystem.typedisplay },
+                      proc { |value| $PokemonSystem.typedisplay = value },
+                      ["Don't draw the type indicator in battle",
+                      "Draws handmade custom type icons in battle | Artwork by Lolpy1",
+                      "Draws TCG themed type icons in battle | by Trapstarr",
+                      "Draws the square type icons in battle | Triple Fusion artwork by Lolpy1",
+                      "Draws the text type display in battle | by Trapstarr"]
     )
+
+    options << EnumOption.new(_INTL("Swap Battle Graphics"), [_INTL("Off"), _INTL("Type 1"), _INTL("Type 2")],
+                      proc { $PokemonSystem.battlegui },
+                      proc { |value| $PokemonSystem.battlegui = value },
+                      ["This feature is a work in progress, more to come soon",
+                      "Swaps the HP/Exp bar to v1 | created by Mirasein",
+                      "Swaps the HP/Exp bar to v2 | created by Mirasein"]
+   )
+   
+    options << EnumOption.new(_INTL("Dark Mode"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.darkmode },
+                      proc { |value| $PokemonSystem.darkmode = value },
+                      ["Default UI",
+                      "Swaps the message graphics during battle"]
+    )
+
     return options
   end
 end
 
+
 #===============================================================================
-# BATTLE
+# QOL/OTHERS
 #===============================================================================
 class ShowdownOptSc_2 < PokemonOption_Scene
   def initialize
@@ -976,8 +971,8 @@ class ShowdownOptSc_2 < PokemonOption_Scene
       @sprites["option"][i] = (@PokemonOptions[i].get || 0)
     end
     @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Battles & Pokemons settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Customize modded features")
+      _INTL("QoL Options"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Configure Quality of Life options")
 
 
     pbFadeInAndShow(@sprites) { pbUpdate }
@@ -1027,114 +1022,13 @@ class ShowdownOptSc_2 < PokemonOption_Scene
                       "Allows Trapstarr to take control of your pokemon"]
     )
 
-    return options
-  end
-end
-
-
-#===============================================================================
-# GRAPHICS
-#===============================================================================
-class ShowdownOptSc_3 < PokemonOption_Scene
-  def initialize
-    @changedColor = false
-  end
-
-  def pbStartScene(inloadscreen = false)
-    super
-    @sprites["option"].nameBaseColor = Color.new(35, 200, 35)
-    @sprites["option"].nameShadowColor = Color.new(20, 115, 20)
-    @changedColor = true
-    for i in 0...@PokemonOptions.length
-      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
-    end
-    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Graphics settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Customize modded features")
-
-
-    pbFadeInAndShow(@sprites) { pbUpdate }
-  end
-
-  def pbFadeInAndShow(sprites, visiblesprites = nil)
-    return if !@changedColor
-    super
-  end
-
-  def pbGetOptions(inloadscreen = false)
-    options = []
-
-    options << EnumOption.new(_INTL("Type Display"), [_INTL("Off"), _INTL("Icons"), _INTL("TCG"), _INTL("Sqr"), _INTL("Txt")],
-                      proc { $PokemonSystem.typedisplay },
-                      proc { |value| $PokemonSystem.typedisplay = value },
-                      ["Don't draw the type indicator in battle",
-                      "Draws handmade custom type icons in battle | Artwork by Lolpy1",
-                      "Draws TCG themed type icons in battle",
-                      "Draws the square type icons in battle | Triple Fusion artwork by Lolpy1",
-                      "Draws the text type display in battle"]
+    options << EnumOption.new(_INTL("Shiny Trainer Pokemon"), [_INTL("Off"), _INTL("Ace"), _INTL("All")],
+                      proc { $PokemonSystem.shiny_trainer_pkmn },
+                      proc { |value| $PokemonSystem.shiny_trainer_pkmn = value },
+                      ["Trainer pokemon will have their normal shiny rates",
+                      "Draws the opposing trainers ace pokemon as shiny",
+                      "All trainers pokemon in their party will be shiny"]
     )
-
-    options << EnumOption.new(_INTL("Swap BattleGUI"), [_INTL("Off"), _INTL("Type 1"), _INTL("Type 2")],
-                      proc { $PokemonSystem.battlegui },
-                      proc { |value| $PokemonSystem.battlegui = value },
-                      ["This feature is a work in progress, more to come soon",
-                      "Swaps the HP/Exp bar to v1 | created by Mirasein",
-                      "Swaps the HP/Exp bar to v2 | created by Mirasein"]
-   )
-   
-    options << EnumOption.new(_INTL("Dark Mode"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.darkmode },
-                      proc { |value| $PokemonSystem.darkmode = value },
-                      ["Default UI",
-                      "Swaps the message graphics during battle"]
-    )
-
-    return options
-  end
-end
-
-#===============================================================================
-# OTHERS
-#===============================================================================
-class ShowdownOptSc_4 < PokemonOption_Scene
-  def initialize
-    @changedColor = false
-  end
-
-  def pbStartScene(inloadscreen = false)
-    super
-    @sprites["option"].nameBaseColor = Color.new(35, 200, 200)
-    @sprites["option"].nameShadowColor = Color.new(20, 115, 115)
-    @changedColor = true
-    for i in 0...@PokemonOptions.length
-      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
-    end
-    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Others settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Customize modded features")
-
-
-    pbFadeInAndShow(@sprites) { pbUpdate }
-  end
-
-  def pbFadeInAndShow(sprites, visiblesprites = nil)
-    return if !@changedColor
-    super
-  end
-
-  def pbGetOptions(inloadscreen = false)
-    options = []
-
-    if $scene && $scene.is_a?(Scene_Map)
-      options.concat(pbGetInGameOptions())
-    end
-    return options
-  end
-
-  
-  def pbGetInGameOptions()
-    options = []
-    #
     return options
   end
 end
@@ -1142,7 +1036,7 @@ end
 #===============================================================================
 # SELF BATTLE
 #===============================================================================
-class ShowdownOptSc_5 < PokemonOption_Scene
+class ShowdownOptSc_3 < PokemonOption_Scene
   def initialize
     @changedColor = false
   end
@@ -1156,8 +1050,8 @@ class ShowdownOptSc_5 < PokemonOption_Scene
       @sprites["option"][i] = (@PokemonOptions[i].get || 0)
     end
     @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Self-Battle & Import settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Customize modded features")
+      _INTL("Battle Loop Settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Configure Battle Loop Options")
 
 
     pbFadeInAndShow(@sprites) { pbUpdate }
@@ -1181,7 +1075,6 @@ class ShowdownOptSc_5 < PokemonOption_Scene
     return options
   end
 
-  
   def pbGetInGameOptions()
     options = []
 
@@ -1246,18 +1139,62 @@ class ShowdownOptSc_5 < PokemonOption_Scene
                       ["You may only use the same party size",
                       "You may perform 6v1, etc (bypass the party size)"]
     )
-    # options << EnumOption.new(_INTL("Soul-Linked"), [_INTL("Off"), _INTL("On")],
-    #                   proc { $PokemonSystem.sb_soullinked },
-    #                   proc { |value| $PokemonSystem.sb_soullinked = value },
-    #                   ["Pokemons are all individual/indepedent copies",
-    #                   "The same Pokemons between your team are linked"]
-    # )
     options << EnumOption.new(_INTL("Stat Tracker"), [_INTL("Off"), _INTL("On")],
-    proc { $PokemonSystem.sb_stat_tracker },
-    proc { |value| $PokemonSystem.sb_stat_tracker = value },
-    ["Does not display the stat tracker during AutoBattle + Battle Loop",
-    "Shows stats such as Win/Loss tracker for Self-battle/Auto-battle"]
+                      proc { $PokemonSystem.sb_stat_tracker },
+                      proc { |value| $PokemonSystem.sb_stat_tracker = value },
+                      ["Does not display the stat tracker during AutoBattle + Battle Loop",
+                      "Shows stats such as Win/Loss tracker for Self-battle/Auto-battle"]
     )
+    return options
+  end
+end
+
+#===============================================================================
+# IMPORT/EXPORT
+#===============================================================================
+
+class ShowdownOptSc_4 < PokemonOption_Scene
+  def initialize
+    @changedColor = false
+  end
+
+  def pbStartScene(inloadscreen = false)
+    super
+    @sprites["option"].nameBaseColor = Color.new(200, 35, 200)
+    @sprites["option"].nameShadowColor = Color.new(115, 20, 115)
+    @changedColor = true
+    for i in 0...@PokemonOptions.length
+      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
+    end
+    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
+      _INTL("Import/Export Settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Configure Import & Export Settings")
+
+
+    pbFadeInAndShow(@sprites) { pbUpdate }
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    return if !@changedColor
+    super
+  end
+
+  def pbGetOptions(inloadscreen = false)
+    options = []
+
+    if $scene && $scene.is_a?(Scene_Map)
+      options.concat(pbGetInGameOptions())
+    else
+      options << ButtonOption.new(_INTL("### EMPTY ###"),
+      proc {}
+      )
+    end
+    return options
+  end
+
+  def pbGetInGameOptions()
+    options = []
+
     options << EnumOption.new(_INTL("Import Level"), [_INTL("Default"), _INTL("1"), _INTL("5"), _INTL("50"), _INTL("100")],
                       proc { $PokemonSystem.importlvl },
                       proc { |value| $PokemonSystem.importlvl = value },
@@ -1298,7 +1235,6 @@ class ShowdownOptSc_5 < PokemonOption_Scene
                       "The .png of the Pokemon will be read from the folder but not imported.",
                       "The .png (appearence) of the Pokemon will not be imported."]
     )
-
     return options
   end
 end

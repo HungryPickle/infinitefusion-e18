@@ -271,14 +271,19 @@ class PokeBattle_Battle
     return idxTrainer1==idxTrainer2
   end
 
+#==================================
+  # def pbOwnedByPlayer?(idxBattler)
+  #   return false if opposes?(idxBattler)
+  #   return pbGetOwnerIndexFromBattlerIndex(idxBattler)==0
+  # end
+#==================================
+  # Trapstarr's Auto-Battler (Ally controls player pokemon)
   def pbOwnedByPlayer?(idxBattler)
     return false if opposes?(idxBattler)
-    # Trapstarr's Auto-Battler (Ally controls player pokemon)
-	#==================================
     return false if $PokemonSystem.autobattler != nil && $PokemonSystem.autobattler == 1
-    #==================================
     return pbGetOwnerIndexFromBattlerIndex(idxBattler)==0
   end
+#==================================
 
   # Returns the number of Pokémon positions controlled by the given trainerIndex
   # on the given side of battle.
