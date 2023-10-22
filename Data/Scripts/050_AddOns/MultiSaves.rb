@@ -340,7 +340,12 @@ class PokemonLoadScreen
     updateCreditsFile
     newer_version = find_newer_available_version
     if newer_version
-      pbMessage(_INTL("Version {1} is now available! Please use the game's installer to download the newest version. Check the Discord for more information.", newer_version))
+      if File.file?('.\INSTALL_OR_UPDATE_IFS.bat')
+        update_answer = pbMessage(_INTL("Version {1} is now available! Update now?", newer_version), ["Yes","No"], 1)
+        if update_answer == 0 then Process.spawn('.\INSTALL_OR_UPDATE_IFS.bat', "auto"); exit end
+      else
+        pbMessage(_INTL("Version {1} is now available! Please check the game's official page to download the newest version.", newer_version))
+      end
     end
 
     if ($game_temp.unimportedSprites && $game_temp.unimportedSprites.size > 0)
