@@ -256,6 +256,14 @@ class PokemonStorage
       self.party.compact! if box==-1
     end
   end
+  
+  #By Sylvi (multi)
+  def pbDeleteMulti(box,indexes)
+    for index in indexes
+      self[box,index] = nil
+    end
+    self.party.compact! if box==-1
+  end
 
   def clear
     for i in 0...self.maxBoxes

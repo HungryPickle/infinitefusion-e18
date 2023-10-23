@@ -65,6 +65,13 @@ class Trainer
   end
 
   def skill_level
+#==================================
+# Trapstarr - Autobattle: Giving the enemy a chance
+#==================================
+    if $PokemonSystem.autobattler && $PokemonSystem.autobattler == 1
+      return 100
+    end
+#==================================
     if $game_switches[SWITCH_GAME_DIFFICULTY_HARD]
       return 100
     end

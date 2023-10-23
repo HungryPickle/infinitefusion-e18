@@ -141,9 +141,13 @@ class PokeBattle_Battler
   def pbRemoveItem(permanent = true)
     @effects[PBEffects::ChoiceBand] = nil
     @effects[PBEffects::Unburden]   = true if self.item
-
-    if permanent && self.item == self.initialItem
-      if $PokemonBag.pbQuantity(self.initialItem)>=1
+#==================================
+# Trapstarr - Recover Consumables
+#==================================
+    # if permanent && self.item == self.initialItem
+    if ($PokemonSystem.recover_consumables == 1 || permanent) && self.item == self.initialItem
+#==================================
+	  if $PokemonBag.pbQuantity(self.initialItem)>=1
         $PokemonBag.pbDeleteItem(self.initialItem)
       else
         setInitialItem(nil)
@@ -155,6 +159,14 @@ class PokeBattle_Battler
   def pbConsumeItem(recoverable=true,symbiosis=true,belch=true)
     PBDebug.log("[Item consumed] #{pbThis} consumed its held #{itemName}")
     if recoverable
+#==================================
+# Trapstarr - Recover Consumables
+#==================================
+      if $PokemonSystem.recover_consumables == 1
+         $PokemonBag.pbCanStore?(@item_id, 1)
+         $PokemonBag.pbStoreItem(@item_id, 1)
+      end
+#==================================
       setRecycleItem(@item_id)
       @effects[PBEffects::PickupItem] = @item_id
       @effects[PBEffects::PickupUse]  = @battle.nextPickupUse

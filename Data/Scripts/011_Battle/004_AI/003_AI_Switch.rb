@@ -98,14 +98,19 @@ class PokeBattle_AI
         if battler.effects[PBEffects::PerishSong]!=1
           # Will contain effects that recommend against switching
           spikes = battler.pbOwnSide.effects[PBEffects::Spikes]
-          # Don't switch to this if too little HP
+#==================================
+# Trapstarr - WIP Core PiF bugfix
+#==================================
+		 # Don't switch to this if too little HP
           if spikes>0
             spikesDmg = [8,6,4][spikes-1]
             if pkmn.hp<=pkmn.totalhp/spikesDmg
               next if !pkmn.hasType?(:FLYING) && !pkmn.hasActiveAbility?(:LEVITATE)
-            end
+			# DEBUG HERE
+			end
           end
         end
+#==================================
         # moveType is the type of the target's last used move
         if moveType && Effectiveness.ineffective?(pbCalcTypeMod(moveType,battler,battler))
           weight = 65

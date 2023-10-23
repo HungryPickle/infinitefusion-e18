@@ -131,6 +131,9 @@ class PokemonSummary_Scene
       @sprites["pokemon"].zoom_y = Settings::FRONTSPRITE_SCALE
     end
     @sprites["pokeicon"] = PokemonIconSprite.new(@pokemon, @viewport)
+    #Sylvi Big Icons
+    @sprites["pokeicon"].icon_offset_x = 0
+    @sprites["pokeicon"].icon_offset_y = 0
     @sprites["pokeicon"].setOffset(PictureOrigin::Center)
     @sprites["pokeicon"].x = 46
     @sprites["pokeicon"].y = 92
@@ -191,6 +194,9 @@ class PokemonSummary_Scene
     @sprites["overlay"] = BitmapSprite.new(Graphics.width, Graphics.height, @viewport)
     pbSetSystemFont(@sprites["overlay"].bitmap)
     @sprites["pokeicon"] = PokemonIconSprite.new(@pokemon, @viewport)
+    #Sylvi Big Icons
+    @sprites["pokeicon"].icon_offset_x = 0
+    @sprites["pokeicon"].icon_offset_y = 0
     @sprites["pokeicon"].setOffset(PictureOrigin::Center)
     @sprites["pokeicon"].x = 46
     @sprites["pokeicon"].y = 92
@@ -658,19 +664,34 @@ class PokemonSummary_Scene
     end
     # Write various bits of text
     textpos = [
-      [_INTL("HP"), 292, 70, 2, base, statshadows[:HP]],
-      [sprintf("%d/%d", @pokemon.hp, @pokemon.totalhp), 462, 70, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [_INTL("HP"), 248, 70, 0, base, statshadows[:HP]],
+      [sprintf("%d", @pokemon.hp), 346, 70, 1, base, shadow],
+      [sprintf("%d", @pokemon.totalhp), 400, 70, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+	  #[_INTL("IV"), 360, 70, 0, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.iv[:HP]), 440, 70, 1, Color.new(84, 64, 44), Color.new(248, 148, 0)],
+	  #[_INTL("EV"), 442, 70, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.ev[:HP]), 480, 70, 1, Color.new(54, 84, 54), Color.new(24, 192, 32)],
       [_INTL("Attack"), 248, 114, 0, base, statshadows[:ATTACK]],
-      [sprintf("%d", @pokemon.attack), 456, 114, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.attack), 400, 114, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.iv[:ATTACK]), 440, 114, 1, Color.new(84, 64, 44), Color.new(248, 148, 0)],
+      [sprintf("%d", @pokemon.ev[:ATTACK]), 480, 114, 1, Color.new(54, 84, 54), Color.new(24, 192, 32)],
       [_INTL("Defense"), 248, 146, 0, base, statshadows[:DEFENSE]],
-      [sprintf("%d", @pokemon.defense), 456, 146, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.defense), 400, 146, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.iv[:DEFENSE]), 440, 146, 1, Color.new(84, 64, 44), Color.new(248, 148, 0)],
+      [sprintf("%d", @pokemon.ev[:DEFENSE]), 480, 146, 1, Color.new(54, 84, 54), Color.new(24, 192, 32)],
       [_INTL("Sp. Atk"), 248, 178, 0, base, statshadows[:SPECIAL_ATTACK]],
-      [sprintf("%d", @pokemon.spatk), 456, 178, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.spatk), 400, 178, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.iv[:SPECIAL_ATTACK]), 440, 178, 1, Color.new(84, 64, 44), Color.new(248, 148, 0)],
+      [sprintf("%d", @pokemon.ev[:SPECIAL_ATTACK]), 480, 178, 1, Color.new(54, 84, 54), Color.new(24, 192, 32)],
       [_INTL("Sp. Def"), 248, 210, 0, base, statshadows[:SPECIAL_DEFENSE]],
-      [sprintf("%d", @pokemon.spdef), 456, 210, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.spdef), 400, 210, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.iv[:SPECIAL_DEFENSE]), 440, 210, 1, Color.new(84, 64, 44), Color.new(248, 148, 0)],
+      [sprintf("%d", @pokemon.ev[:SPECIAL_DEFENSE]), 480, 210, 1, Color.new(54, 84, 54), Color.new(24, 192, 32)],
       [_INTL("Speed"), 248, 242, 0, base, statshadows[:SPEED]],
-      [sprintf("%d", @pokemon.speed), 456, 242, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
-      [_INTL("Ability"), 224, 278, 0, base, shadow]
+      [sprintf("%d", @pokemon.speed), 400, 242, 1, Color.new(64, 64, 64), Color.new(176, 176, 176)],
+      [sprintf("%d", @pokemon.iv[:SPEED]), 440, 242, 1, Color.new(84, 64, 44), Color.new(248, 148, 0)],
+      [sprintf("%d", @pokemon.ev[:SPEED]), 480, 242, 1, Color.new(54, 84, 54), Color.new(24, 192, 32)],
+     [_INTL("Ability"), 224, 278, 0, base, shadow]
     ]
     # Draw ability name and description
     ability = @pokemon.ability
