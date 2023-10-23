@@ -138,6 +138,13 @@ def mainFunctionDebug
     showLoadingScreen
     MessageTypes.loadMessageFile("Data/messages.dat") if safeExists?("Data/messages.dat")
     PluginManager.runPlugins
+#==================================
+# Infinite Showdown mod loader
+#==================================
+Dir.glob("Data/Scripts/IFS_Mods/*.rb").each do |file| 
+  load File.expand_path(file)
+end
+#==================================
     Compiler.main
     Game.initialize
     Game.set_up_system

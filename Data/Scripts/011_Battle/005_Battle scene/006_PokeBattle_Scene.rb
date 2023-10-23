@@ -1,23 +1,5 @@
-#===============================================================================
-# Trapstarrs Stat Tracker Display Module
-#===============================================================================
-module WTStatTracker
-  def show_stat_tracker?
-    if ($PokemonSystem.sb_stat_tracker && $PokemonSystem.sb_stat_tracker == 1 &&
-    $PokemonSystem.sb_loopinput && $PokemonSystem.sb_loopinput == 1 &&
-    $PokemonSystem.autobattler && $PokemonSystem.autobattler != 0)
-    return true
-	end
-  end
-end
-#===============================================================================
 # Battle scene (the visuals of the battle)
 class PokeBattle_Scene
-#==================================
-# Trapstarr - Stat Tracker
-#==================================
-  include WTStatTracker
-#==================================
   attr_accessor :abortable   # For non-interactive battles, can quit immediately
   attr_reader   :viewport
   attr_reader   :sprites
@@ -33,41 +15,6 @@ class PokeBattle_Scene
   #=============================================================================
   # Updating and refreshing
   #=============================================================================
-#==================================
-# Trapstarr Stat Tracker - Win Display
-#==================================
-  def update_win_display
-    if show_stat_tracker?
-      # Create or update the text object
-      if @win_display_text.nil?
-        @win_display_text = Sprite.new(@viewport)
-        @win_display_text.bitmap = Bitmap.new(Graphics.width, 24)
-        @win_display_text.z = 9999
-        @win_display_text.y = Graphics.height - 96
-      end
-      @win_display_text.bitmap.clear
-
-      # Set the font color based on dark mode setting
-      if $PokemonSystem.darkmode && $PokemonSystem.darkmode == 1
-        @win_display_text.bitmap.font.color.set(225, 225, 225)  # Set to a lighter gray color for dark mode
-      else
-        @win_display_text.bitmap.font.color.set(40, 40, 44)  # Default to a black color
-      end
-
-      # Update the text
-      text = "[ Player: #{$PokemonSystem.player_wins} | Enemy: #{$PokemonSystem.enemy_wins} ]"
-      @win_display_text.bitmap.clear
-      rect = @win_display_text.bitmap.rect
-      @win_display_text.bitmap.draw_text(rect.x, rect.y, rect.width, rect.height, text, 1)
-    else
-      # Dispose of the text object if it exists and the condition isn't met
-      unless @win_display_text.nil?
-        @win_display_text.dispose
-        @win_display_text = nil
-      end
-    end
-  end
-#==================================
   
   def pbUpdate(cw=nil)
     pbGraphicsUpdate
@@ -94,11 +41,6 @@ class PokeBattle_Scene
     Graphics.update
     @frameCounter += 1
     @frameCounter = @frameCounter%(Graphics.frame_rate*12/20)
-#==================================
- # Trapstarr Win Tracker
-#==================================
-	update_win_display
-#==================================
   end
 
   def pbInputUpdate

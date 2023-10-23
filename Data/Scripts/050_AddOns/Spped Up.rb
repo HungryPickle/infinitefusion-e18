@@ -41,10 +41,20 @@ def pbDisallowSpeedup
 end
 
 def updateTitle
-  auto_text = $AutoBattler ? " | Auto-Battle (ON)" : ""
-  loop_text = $LoopBattle ? " | Loop Battle (ON)" : ""
-  speed_display = SPEEDUP_STAGES[$GameSpeed].to_s 
-  title = "Infinite Showdown | Version: #{Settings::GAME_VERSION_NUMBER} | Speed: x#{speed_display}" + auto_text + loop_text
+  speed_display = SPEEDUP_STAGES[$GameSpeed].to_s
+
+  # Check if both AutoBattler and LoopBattle are on
+  if $AutoBattler && $LoopBattle
+    autoloop_text = " | Auto + Showdown (ON)"
+    auto_text = ""
+    loop_text = ""
+  else
+    auto_text = $AutoBattler ? " | Auto-Battle (ON)" : ""
+    loop_text = $LoopBattle ? " | Showdown (ON)" : ""
+    autoloop_text = ""
+  end
+
+  title = "Infinite Showdown | Version: #{Settings::GAME_VERSION_NUMBER} | Speed: x#{speed_display}" + auto_text + loop_text + autoloop_text
   System.set_window_title(title)
 end
 
@@ -68,7 +78,13 @@ module Graphics
 
   def self.update
     if $PokemonSystem
-      if Input.trigger?(Input::JUMPUP) && $PokemonSystem.autobattler
+      # Check if the $AutoBattler variable differs from the $PokemonSystem.autobattler setting
+      if $AutoBattler != ($PokemonSystem.autobattler == 1)
+        $AutoBattler = !$AutoBattler
+        updateTitle
+      end
+      
+      if Input.trigger?(Input::JUMPUP)
         $AutoBattler = !$AutoBattler
         $PokemonSystem.autobattler = $AutoBattler ? 1 : 0
         updateTitle
@@ -104,3 +120,4 @@ module Graphics
     $frame = 0
   end
 end
+#==================================

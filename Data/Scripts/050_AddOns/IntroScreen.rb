@@ -127,7 +127,13 @@ class GenOneStyle
 
   def initialize
     Kernel.pbDisplayText("Keybindings: F1", 80, 0, 99999)
-    Kernel.pbDisplayText("Version " + Settings::GAME_VERSION_NUMBER, 254, 308, 99999)
+#==================================
+# Infinite Showdown - Intro Screen
+#==================================
+    Kernel.pbDisplayText("Infinite Fusion: Showdown", 254, 307, 99999)
+    Kernel.pbDisplayText("Version: " + Settings::GAME_VERSION_NUMBER, 254, 331, 99999)
+    # Kernel.pbDisplayText("Version " + Settings::GAME_VERSION_NUMBER, 254, 308, 99999)
+#==================================
 
     @maxPoke = 140 #1st gen, pas de legend la premiere fois, graduellement plus de poke
     @customPokeList = getCustomSpeciesList(false)

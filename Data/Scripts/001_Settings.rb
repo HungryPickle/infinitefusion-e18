@@ -6,8 +6,8 @@
 module Settings
   # The version of your game. It has to adhere to the MAJOR.MINOR.PATCH format.
   GAME_VERSION = '5.0.0'
-  # GAME_VERSION_NUMBER = "5.3.1.3" # PIFs current version
-  GAME_VERSION_NUMBER = "0.1.3"
+  # Infinite Showdown Version Number
+  GAME_VERSION_NUMBER = "0.2.0"
 
   POKERADAR_LIGHT_ANIMATION_RED_ID = 17
   POKERADAR_LIGHT_ANIMATION_GREEN_ID = 18
@@ -482,9 +482,8 @@ module Settings
     "speech hgss 20",
     "speech pl 18"
   ]
-
-  # Available menu frames. These are graphic files in "Graphics/Windowskins/".
-  MENU_WINDOWSKINS = [
+  
+    MENU_WINDOWSKINS = [
     "choice 1",
     "choice 2",
     "choice 3",
@@ -514,7 +513,6 @@ module Settings
     "choice 27",
     "choice 28"
   ]
-
 
   RANDOMIZED_GYM_TYPE_TM=
     {

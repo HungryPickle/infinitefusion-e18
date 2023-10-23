@@ -26,37 +26,29 @@ class PokemonSystem
   attr_accessor :improved_pokedex
   attr_accessor :recover_consumables
   attr_accessor :expall_redist
-  attr_accessor :shiny_trainer_pkmn
+  # attr_accessor :shiny_trainer_pkmn
+  
+  attr_accessor :Sylvibigicons
+
+  attr_accessor :sd_stat_tracker # refactoring/depreciated soon
+  attr_accessor :player_wins # refactoring/depreciated soon
+  attr_accessor :enemy_wins # refactoring/depreciated soon
+  attr_accessor :sb_loopinput # refactoring/depreciated soon
+  attr_accessor :sb_loopbreaker # refactoring/depreciated soon
+  
+  attr_accessor :sd_nomoney
+  # attr_accessor :sd_noexp
 #==================================
 # Modded - Infinite Showdown - Getting Depreciated/Needs Refactor
 #==================================
-  attr_accessor :importnodelete
-  attr_accessor :exportdelete
-  attr_accessor :savefolder
-  
-  attr_accessor :sb_stat_tracker
-  attr_accessor :player_wins
-  attr_accessor :enemy_wins
-
-  attr_accessor :sb_loopinput
-  attr_accessor :sb_loopbreaker
-
   attr_accessor :sb_randomizeteam
-  attr_accessor :sb_randomizeshare
-  attr_accessor :sb_randomizesize
-  attr_accessor :sb_battlesize
+  attr_accessor :sb_team_size
   attr_accessor :sb_select
   attr_accessor :sb_level
   attr_accessor :sb_playerfolder
+  
+  attr_accessor :savefolder
 
-  attr_accessor :sb_maxing # allows to have more pokemons than the opponent
-  attr_accessor :sb_soullinked # pokemons of the team are soul-linked (not recommended)
-
-  attr_accessor :importlvl
-  attr_accessor :importdevolve
-
-  attr_accessor :nopngexport
-  attr_accessor :nopngimport
 #==================================
   
   def initialize
@@ -84,31 +76,26 @@ class PokemonSystem
     @improved_pokedex = 0
     @recover_consumables = 0
     @expall_redist = 0
-    @shiny_trainer_pkmn = 0
+    # @shiny_trainer_pkmn = 0
+	
+    @Sylvibigicons = 0
+	
 #==================================
-# Modded - Infinite Showdown - Getting Depreciated/Needs Refactor
+# Modded - Getting Depreciated/Needs Refactor
 #==================================
-    @sb_maxing = 0
-    @unfusetraded = 0
-    @sb_soullinked = 0
-    @globalvalues = 0
-    @sb_randomizeteam = 0
-    @sb_randomizeshare = 0
-    @sb_randomizesize = 0
-    @sb_battlesize = 0
-    @importlvl = 0
-    @importdevolve = 0
-    @sb_select = 0
-    @sb_playerfolder = 0
-    @sb_level = 0
-    @importnodelete = 0
-	@sb_stat_tracker = 0
+	@sd_stat_tracker = 0
 	@player_wins = 0
     @enemy_wins = 0
     @sb_loopinput = 0
     @sb_loopbreaker = 0
+	
+    # @unfusetraded = 0
+    @sb_randomizeteam = 0
+    @sb_team_size = 0
+    @sb_select = 0
+    @sb_playerfolder = @sb_randomizeteam
+    @sb_level = 0
     @savefolder = 0
-    @exportdelete = 0
 #==================================
 	
   end
@@ -803,7 +790,7 @@ class ShowdownOptionsScene < PokemonOption_Scene
       @sprites["option"][i] = (@PokemonOptions[i].get || 0)
     end
     @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("IF Showdown options"),0,0,Graphics.width,64,@viewport)
+      _INTL("Infinite Showdown options"),0,0,Graphics.width,64,@viewport)
     @sprites["textbox"].text=_INTL("Configure Infinite Showdown Options")
 
 
@@ -829,29 +816,14 @@ class ShowdownOptionsScene < PokemonOption_Scene
         openShowdownMenu2()
       }, "Customize Quality of Life options"
     )
-    options << ButtonOption.new(_INTL("Battle Looping"),
+    options << ButtonOption.new(_INTL("Showdown Options"),
       proc {
         @showdown_menu = true
         openShowdownMenu3()
-      }, "Configure Battle Looping Options"
+      }, "Configure Showdown Battler Options"
     )
-    options << ButtonOption.new(_INTL("Import/Export"),
-      proc {
-        @showdown_menu = true
-        openShowdownMenu4()
-      }, "Configure Import & Export Settings"
-    )
-
-    # if $scene && $scene.is_a?(Scene_Map)
-    #   options.concat(pbGetInGameOptions())
-    # end
     return options
   end
-
-  # def pbGetInGameOptions()
-  #   options = []
-  #   return options
-  # end
 
   def openShowdownMenu1()
     return if !@showdown_menu
@@ -875,15 +847,6 @@ class ShowdownOptionsScene < PokemonOption_Scene
     return if !@showdown_menu
     pbFadeOutIn {
       scene = ShowdownOptSc_3.new
-      screen = PokemonOptionScreen.new(scene)
-      screen.pbStartScreen
-    }
-    @showdown_menu = false
-  end
-  def openShowdownMenu4()
-    return if !@showdown_menu
-    pbFadeOutIn {
-      scene = ShowdownOptSc_4.new
       screen = PokemonOptionScreen.new(scene)
       screen.pbStartScreen
     }
@@ -946,7 +909,15 @@ class ShowdownOptSc_1 < PokemonOption_Scene
                       proc { $PokemonSystem.darkmode },
                       proc { |value| $PokemonSystem.darkmode = value },
                       ["Default UI",
-                      "Swaps the message graphics during battle"]
+                      "Swaps the messagebox graphics during battle"]
+    )
+	
+    options << EnumOption.new(_INTL("Big Pokémon Icons"), [_INTL("Off"), _INTL("Limited"), _INTL("All")],
+                      proc { $PokemonSystem.Sylvibigicons },
+                      proc { |value| $PokemonSystem.Sylvibigicons = value },
+                      ["Pokémon will use their small box sprites for icons",
+                      "Pokémon icons will use their full-size battle sprites (except in boxes) | By Sylvi",
+                      "Pokémon icons will use their full-size battle sprites | By Sylvi"]
     )
 
     return options
@@ -1015,26 +986,19 @@ class ShowdownOptSc_2 < PokemonOption_Scene
                       "0 = Off, 10 = Max | Redistributes total exp from expAll to lower level pokemon"
     )
 
-    options << EnumOption.new(_INTL("Auto-Battle"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.autobattler },
-                      proc { |value| $PokemonSystem.autobattler = value },
-                      ["You fight your own battles",
-                      "Allows Trapstarr to take control of your pokemon"]
-    )
-
-    options << EnumOption.new(_INTL("Shiny Trainer Pokemon"), [_INTL("Off"), _INTL("Ace"), _INTL("All")],
-                      proc { $PokemonSystem.shiny_trainer_pkmn },
-                      proc { |value| $PokemonSystem.shiny_trainer_pkmn = value },
-                      ["Trainer pokemon will have their normal shiny rates",
-                      "Draws the opposing trainers ace pokemon as shiny",
-                      "All trainers pokemon in their party will be shiny"]
-    )
+    # options << EnumOption.new(_INTL("Shiny Trainer Pokemon"), [_INTL("Off"), _INTL("Ace"), _INTL("All")],
+                      # proc { $PokemonSystem.shiny_trainer_pkmn },
+                      # proc { |value| $PokemonSystem.shiny_trainer_pkmn = value },
+                      # ["Trainer pokemon will have their normal shiny rates",
+                      # "Draws the opposing trainers ace pokemon as shiny",
+                      # "All trainers pokemon in their party will be shiny"]
+    # )
     return options
   end
 end
 
 #===============================================================================
-# SELF BATTLE
+# SHOWDOWN SETTINGS
 #===============================================================================
 class ShowdownOptSc_3 < PokemonOption_Scene
   def initialize
@@ -1050,8 +1014,8 @@ class ShowdownOptSc_3 < PokemonOption_Scene
       @sprites["option"][i] = (@PokemonOptions[i].get || 0)
     end
     @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Battle Loop Settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Configure Battle Loop Options")
+      _INTL("Showdown Settings"),0,0,Graphics.width,64,@viewport)
+    @sprites["textbox"].text=_INTL("Configure Showdown Options")
 
 
     pbFadeInAndShow(@sprites) { pbUpdate }
@@ -1077,55 +1041,40 @@ class ShowdownOptSc_3 < PokemonOption_Scene
 
   def pbGetInGameOptions()
     options = []
-
-    options << EnumOption.new(_INTL("Battle Size"), [_INTL("1"), _INTL("2"), _INTL("3"), _INTL("4"), _INTL("5"), _INTL("6")],
-                      proc { $PokemonSystem.sb_battlesize },
-                      proc { |value| $PokemonSystem.sb_battlesize = value },
-                      ["1 enemy Pokemon",
-                        "2 enemy Pokemons",
-                        "3 enemy Pokemons",
-                        "4 enemy Pokemons",
-                        "5 enemy Pokemons",
-                        "6 enemy Pokemons"]
+	
+    options << ButtonOption.new(_INTL("            ### Showdown Battler ###"),
+                      proc {},
+                      ["Showdown battle keybind = 'S' | Auto-Battler keybind = 'A'"]
     )
-    options << EnumOption.new(_INTL("Player Size"), [_INTL("1"), _INTL("2"), _INTL("3"), _INTL("4"), _INTL("5"), _INTL("6")],
-                      proc { $PokemonSystem.sb_randomizesize },
-                      proc { |value| $PokemonSystem.sb_randomizesize = value },
-                      ["1 player Pokemon",
-                        "2 player Pokemons",
-                        "3 player Pokemons",
-                        "4 player Pokemons",
-                        "5 player Pokemons",
-                        "6 player Pokemons"]
+    options << EnumOption.new(_INTL("Auto-Battler"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.autobattler },
+                      proc { |value| $PokemonSystem.autobattler = value },
+                      ["You fight your own battles",
+                      "Allows Trapstarr to take control of your pokemon"]
     )
-    options << EnumOption.new(_INTL("Level"), [_INTL("Default"), _INTL("1"), _INTL("5"), _INTL("10"), _INTL("50"), _INTL("70"), _INTL("100")],
+    options << EnumOption.new(_INTL("Level"), [_INTL("Default"), _INTL("5"), _INTL("50"), _INTL("100")],
                       proc { $PokemonSystem.sb_level },
                       proc { |value| $PokemonSystem.sb_level = value },
                       ["Pokemons keep their original level",
-                        "Pokemons are level 1",
                         "Pokemons are level 5",
-                        "Pokemons are level 10",
                         "Pokemons are level 50",
-                        "Pokemons are level 70",
                         "Pokemons are level 100"]
     )
-    options << EnumOption.new(_INTL("Randomize Team"), [_INTL("Off"), _INTL("On")],
+    options << EnumOption.new(_INTL("Team Size"), [_INTL("1"), _INTL("2"), _INTL("3"), _INTL("4"), _INTL("5"), _INTL("6")],
+                      proc { $PokemonSystem.sb_team_size },
+                      proc { |value| $PokemonSystem.sb_team_size = value },
+                      ["1 Pokemon",
+                        "2 Pokemon",
+                        "3 Pokemon",
+                        "4 Pokemon",
+                        "5 Pokemon",
+                        "6 Pokemon"]
+    )
+    options << EnumOption.new(_INTL("Player Team"), [_INTL("Party"), _INTL("Folder")],
                       proc { $PokemonSystem.sb_randomizeteam },
                       proc { |value| $PokemonSystem.sb_randomizeteam = value },
-                      ["Doesn't randomize your player team",
-                      "Randomize your player team as well"]
-    )
-    options << EnumOption.new(_INTL("Randomize Share"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.sb_randomizeshare },
-                      proc { |value| $PokemonSystem.sb_randomizeshare = value },
-                      ["Doesn't allow randomize to make you share the same Pokemons",
-                      "Randomize might give you and the enemy the same Pokemons"]
-    )
-    options << EnumOption.new(_INTL("Players Folder"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.sb_playerfolder },
-                      proc { |value| $PokemonSystem.sb_playerfolder = value },
-                      ["Does not use the Players folder to randomize the player's team.",
-                      "Uses the Players Folder to randomize the player's team."]
+                      ["Battle using your current party",
+                      "Choose your party from the ExportedPokemons folder"]
     )
     options << EnumOption.new(_INTL("Team Select"), [_INTL("Off"), _INTL("On")],
                       proc { $PokemonSystem.sb_select },
@@ -1133,108 +1082,27 @@ class ShowdownOptSc_3 < PokemonOption_Scene
                       ["Doesn't prompt you to select your team",
                       "Let you select your team"]
     )
-    options << EnumOption.new(_INTL("Limitless Select"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.sb_maxing },
-                      proc { |value| $PokemonSystem.sb_maxing = value },
-                      ["You may only use the same party size",
-                      "You may perform 6v1, etc (bypass the party size)"]
-    )
     options << EnumOption.new(_INTL("Stat Tracker"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.sb_stat_tracker },
-                      proc { |value| $PokemonSystem.sb_stat_tracker = value },
-                      ["Does not display the stat tracker during AutoBattle + Battle Loop",
-                      "Shows stats such as Win/Loss tracker for Self-battle/Auto-battle"]
+                      proc { $PokemonSystem.sd_stat_tracker },
+                      proc { |value| $PokemonSystem.sd_stat_tracker = value },
+                      ["Does not display the stat tracker during Showdown battles",
+                      "Shows stats such as Win/Loss tracker for Showdown battles"]
     )
-    return options
-  end
-end
-
-#===============================================================================
-# IMPORT/EXPORT
-#===============================================================================
-
-class ShowdownOptSc_4 < PokemonOption_Scene
-  def initialize
-    @changedColor = false
-  end
-
-  def pbStartScene(inloadscreen = false)
-    super
-    @sprites["option"].nameBaseColor = Color.new(200, 35, 200)
-    @sprites["option"].nameShadowColor = Color.new(115, 20, 115)
-    @changedColor = true
-    for i in 0...@PokemonOptions.length
-      @sprites["option"][i] = (@PokemonOptions[i].get || 0)
-    end
-    @sprites["title"]=Window_UnformattedTextPokemon.newWithSize(
-      _INTL("Import/Export Settings"),0,0,Graphics.width,64,@viewport)
-    @sprites["textbox"].text=_INTL("Configure Import & Export Settings")
-
-
-    pbFadeInAndShow(@sprites) { pbUpdate }
-  end
-
-  def pbFadeInAndShow(sprites, visiblesprites = nil)
-    return if !@changedColor
-    super
-  end
-
-  def pbGetOptions(inloadscreen = false)
-    options = []
-
-    if $scene && $scene.is_a?(Scene_Map)
-      options.concat(pbGetInGameOptions())
-    else
-      options << ButtonOption.new(_INTL("### EMPTY ###"),
-      proc {}
-      )
-    end
-    return options
-  end
-
-  def pbGetInGameOptions()
-    options = []
-
-    options << EnumOption.new(_INTL("Import Level"), [_INTL("Default"), _INTL("1"), _INTL("5"), _INTL("50"), _INTL("100")],
-                      proc { $PokemonSystem.importlvl },
-                      proc { |value| $PokemonSystem.importlvl = value },
-                      ["Imported Pokemons keep their original level.",
-                      "Imported Pokemons are set to level 1.",
-                      "Imported Pokemons are set to level 5.",
-                      "Imported Pokemons are set to level 50.",
-                      "Imported Pokemons are set to level 100."]
+    options << ButtonOption.new(_INTL("                ### Battle Rules ###"),
+    proc {}
+    )	
+    options << EnumOption.new(_INTL("Money"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.sd_nomoney },
+                      proc { |value| $PokemonSystem.sd_nomoney = value },
+                      ["Do not gain or lose money during Showdown battles",
+                      "Allows the player to gain/lose money during Showdown battles"]
     )
-    options << EnumOption.new(_INTL("Import De-Evolve"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.importdevolve },
-                      proc { |value| $PokemonSystem.importdevolve = value },
-                      ["Imported Pokemons remain intact.",
-                      "Imported Pokemons are de-evolved into babies."]
-    )
-    options << EnumOption.new(_INTL("Import Without Deletion"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.importnodelete },
-                      proc { |value| $PokemonSystem.importnodelete = value },
-                      ["Imported Pokemons will have their .json deleted.",
-                      "Imported Pokemons will remain as .json in Import folder."]
-    )
-    options << EnumOption.new(_INTL("Delete on Export"), [_INTL("Off"), _INTL("On")],
-                      proc { $PokemonSystem.exportdelete },
-                      proc { |value| $PokemonSystem.exportdelete = value },
-                      ["Exported Pokemons will not be deleted.",
-                      "Exported Pokemons will be deleted."]
-    )
-    options << EnumOption.new(_INTL("Export Sprite on Export"), [_INTL("On"), _INTL("Off")],
-                      proc { $PokemonSystem.nopngexport },
-                      proc { |value| $PokemonSystem.nopngexport = value },
-                      ["The .png of the Pokemon will also be exported.",
-                      "The .png (appearence) of the Pokemon will not be exported."]
-    )
-    options << EnumOption.new(_INTL("Import Sprite on Import"), [_INTL("On"), _INTL("Read-Only"), _INTL("Off")],
-                      proc { $PokemonSystem.nopngimport },
-                      proc { |value| $PokemonSystem.nopngimport = value },
-                      ["The .png of the Pokemon will also be imported.",
-                      "The .png of the Pokemon will be read from the folder but not imported.",
-                      "The .png (appearence) of the Pokemon will not be imported."]
-    )
+    # options << EnumOption.new(_INTL("Experience Gain"), [_INTL("Off"), _INTL("On")],
+                      # proc { $PokemonSystem.sd_noexp },
+                      # proc { |value| $PokemonSystem.sb_exp = value },
+                      # ["Do not gain experience during Showdown battles with party",
+                      # "Allows the player to gain experience during Showdown battles with party"]
+    # )
     return options
   end
 end

@@ -83,7 +83,15 @@ module GameData
       @victory_ME  = hash[:victory_ME]
       @intro_ME    = hash[:intro_ME]
       @gender      = hash[:gender]      || 2
-      @skill_level = hash[:skill_level] || @base_money
+#==================================
+# Trapstarr - Auto-Battler: Giving Trapstarr Skill
+#==================================
+      if $PokemonSystem.autobattler && $PokemonSystem.autobattler == 1
+        @skill_level = 100
+      else
+        @skill_level = hash[:skill_level] || @base_money
+	  end
+#==================================
       @skill_code  = hash[:skill_code]
     end
 
