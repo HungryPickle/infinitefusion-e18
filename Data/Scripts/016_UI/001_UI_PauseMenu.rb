@@ -49,7 +49,7 @@ class PokemonPauseMenu_Scene
     ret = -1
     cmdwindow = @sprites["cmdwindow"]
     cmdwindow.commands = commands
-    cmdwindow.index = $PokemonTemp.menuLastChoice
+    cmdwindow.index = [$PokemonTemp.menuLastChoice, commands.length - 1].min # Showdown - Trapstarr
     cmdwindow.resizeToFit(commands)
     cmdwindow.x = Graphics.width - cmdwindow.width
     cmdwindow.y = 0
@@ -103,6 +103,8 @@ class PokemonPauseMenu
     @scene.pbStartScene
     endscene = true
     commands = []
+	cmdHeal = -1 # Showdown - Trapstarr
+	cmdPC = -1 # Showdown - Trapstarr
     cmdPokedex = -1
     cmdPokemon = -1
     cmdBag = -1
@@ -113,6 +115,13 @@ class PokemonPauseMenu
     cmdDebug = -1
     cmdQuit = -1
     cmdEndGame = -1
+# Showdown - Trapstarr Pause Menu QoL
+#==================================
+    if $PokemonSystem.pause_qol && $PokemonSystem.pause_qol == 1
+      commands[cmdHeal = commands.length] = _INTL("Heal Pokémon")
+      commands[cmdPC = commands.length] = _INTL("Access PC")
+    end
+#==================================
     if $Trainer.has_pokedex && $Trainer.pokedex.accessible_dexes.length > 0
       commands[cmdPokedex = commands.length] = _INTL("Pokédex")
     end
@@ -146,7 +155,21 @@ class PokemonPauseMenu
     commands[cmdEndGame = commands.length] = _INTL("Title screen")
     loop do
       command = @scene.pbShowCommands(commands)
-      if cmdPokedex >= 0 && command == cmdPokedex
+# Showdown - Trapstarr Pause Menu QoL
+##==================================
+      if cmdPC >= 0 && command == cmdPC
+        pbPlayDecisionSE
+        pbFadeOutIn {
+          scene = PokemonStorageScene.new
+          screen = PokemonStorageScreen.new(scene, $PokemonStorage)
+          screen.pbStartScreen(0)
+          $once = 0
+        }	
+      elsif cmdHeal >= 0 && command == cmdHeal
+        $Trainer.heal_party
+        pbMessage(_INTL("Your Pokémon have been healed!"))
+#==================================
+      elsif cmdPokedex >= 0 && command == cmdPokedex
         pbPlayDecisionSE
         if Settings::USE_CURRENT_REGION_DEX
           pbFadeOutIn {

@@ -105,25 +105,26 @@ class PokemonBoxIcon < IconSprite
     return if !@pokemon
     if self.use_big_icon?
       tempBitmap = GameData::Species.sprite_bitmap_from_pokemon(@pokemon, false, nil)
-      if @pokemon.egg?
+      return if tempBitmap.nil?
+	  if @pokemon.egg?
         tempBitmap.scale_bitmap(1.0/2.0)
         @icon_offset_x = -8
         @icon_offset_y = -8
       else
         scale_factor = 1.0
         # Check bitmap dimensions and adjust scale_factor accordingly
-        if tempBitmap.width > 224 || tempBitmap.height > 224
+        # Check bitmap dimensions and adjust scale_factor accordingly
+        if tempBitmap.width > 192 || tempBitmap.height > 192
           scale_factor = 1.0/3.5
-        elsif tempBitmap.width > 192 || tempBitmap.height > 192
+        elsif tempBitmap.width > 144 || tempBitmap.height > 144
           scale_factor = 1.0/3.25
-        elsif tempBitmap.width > 160 || tempBitmap.height > 160
+        elsif tempBitmap.width > 96 || tempBitmap.height > 96
           scale_factor = 1.0/3.0
-        elsif tempBitmap.width > 128 || tempBitmap.height > 128
+        elsif tempBitmap.width > 48 || tempBitmap.height > 48
           scale_factor = 1.0/2.75
-        else tempBitmap.width > 96 || tempBitmap.height > 96
+        else
           scale_factor = 1.0/2.5
         end
-        
         tempBitmap.scale_bitmap(scale_factor)
         @icon_offset_x = -8
         # @icon_offset_y = -16
