@@ -10,10 +10,10 @@ module SDStatTracker
     if ($PokemonSystem.sd_stat_tracker && $PokemonSystem.sd_stat_tracker == 1 &&
       $PokemonSystem.sb_loopinput && $PokemonSystem.sb_loopinput == 1 &&
       $PokemonSystem.autobattler && $PokemonSystem.autobattler != 0)
-    return true
-	else
-	return false
-	end
+      return true
+	  else
+	    return false
+    end
   end
 end
 
