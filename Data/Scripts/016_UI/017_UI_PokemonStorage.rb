@@ -106,13 +106,12 @@ class PokemonBoxIcon < IconSprite
     if self.use_big_icon?
       tempBitmap = GameData::Species.sprite_bitmap_from_pokemon(@pokemon, false, nil)
       return if tempBitmap.nil?
-	  if @pokemon.egg?
+  	if @pokemon.egg?
         tempBitmap.scale_bitmap(1.0/2.0)
         @icon_offset_x = -8
         @icon_offset_y = -8
       else
         scale_factor = 1.0
-        # Check bitmap dimensions and adjust scale_factor accordingly
         # Check bitmap dimensions and adjust scale_factor accordingly
         if tempBitmap.width > 192 || tempBitmap.height > 192
           scale_factor = 1.0/3.5
@@ -130,16 +129,9 @@ class PokemonBoxIcon < IconSprite
         # @icon_offset_y = -16
       end
       self.setBitmapDirectly(tempBitmap)
-    elsif @pokemon.egg?
-      self.setBitmap(GameData::Species.icon_filename_from_pokemon(@pokemon))
-    elsif useRegularIcon(@pokemon.species)
-      if @pokemon.shiny?
-        self.setBitmap(GameData::Species.icon_filename_from_pokemon(@pokemon), GameData::Species.calculateShinyHueOffset(@pokemon.dexNum, @pokemon.bodyShiny?, @pokemon.headShiny?))
-      end
-      self.visible = true
     else
-      self.setBitmapDirectly(createFusionIcon(@pokemon))
-      self.visible = fusion_enabled
+      self.setBitmap(GameData::Species.icon_filename_from_pokemon(@pokemon))
+      self.visible = true
     end
     self.src_rect = Rect.new(0, 0, self.bitmap.height, self.bitmap.height)
   end
