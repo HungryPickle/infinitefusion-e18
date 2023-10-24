@@ -26,6 +26,7 @@ class PokemonSystem
   attr_accessor :improved_pokedex
   attr_accessor :recover_consumables
   attr_accessor :expall_redist
+  attr_accessor :pause_qol
   # attr_accessor :shiny_trainer_pkmn
   
   attr_accessor :Sylvibigicons
@@ -76,6 +77,7 @@ class PokemonSystem
     @improved_pokedex = 0
     @recover_consumables = 0
     @expall_redist = 0
+	@pause_qol = 0
     # @shiny_trainer_pkmn = 0
 	
     @Sylvibigicons = 0
@@ -966,6 +968,13 @@ class ShowdownOptSc_2 < PokemonOption_Scene
   def pbGetInGameOptions()
     options = []
     
+    options << EnumOption.new(_INTL("Pause QoL"), [_INTL("Off"), _INTL("On")],
+                      proc { $PokemonSystem.pause_qol },
+                      proc { |value| $PokemonSystem.pause_qol = value },
+                      ["Don't include the P.C. and Heal button in the pause menu",
+                      "Adds a P.C. and Heal button to the pause menu"]
+    )
+
     options << EnumOption.new(_INTL("Improved Pokedex"), [_INTL("Off"), _INTL("On")],
                       proc { $PokemonSystem.improved_pokedex },
                       proc { |value| $PokemonSystem.improved_pokedex = value },
