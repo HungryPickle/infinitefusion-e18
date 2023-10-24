@@ -205,12 +205,14 @@ class Pokemon
   end
 
   def adjustHPForWonderGuard(stats)
-    return self.ability == :WONDERGUARD ? 1 : stats[:HP] || ($game_switches[SWITCH_DOUBLE_ABILITIES] && self.ability2 == :WONDERGUARD)
+    if $PokemonSystem.sd_wonderguard_hp && $PokemonSystem.sd_wonderguard_hp == 1
+      return stats[:HP]
+    else
+      return self.ability == :WONDERGUARD ? 1 : stats[:HP] 
+    end     
   end
 
 end
-
-
 
 class PokemonFusionScene
 

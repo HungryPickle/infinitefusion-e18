@@ -1149,7 +1149,11 @@ class Pokemon
   end
 
   def adjustHPForWonderGuard(stats)
-    return self.ability == :WONDERGUARD ? 1 : stats[:HP]
+    if $PokemonSystem.sd_wonderguard_hp && $PokemonSystem.sd_wonderguard_hp == 1
+      return stats[:HP]
+    else
+      return self.ability == :WONDERGUARD ? 1 : stats[:HP] 
+    end     
   end
 
   # Recalculates this Pokémon's stats.

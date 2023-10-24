@@ -38,6 +38,7 @@ class PokemonSystem
   attr_accessor :sb_loopbreaker # refactoring/depreciated soon
   
   attr_accessor :sd_nomoney
+  attr_accessor :sd_wonderguard_hp
   # attr_accessor :sd_noexp
 #==================================
 # Modded - Infinite Showdown - Getting Depreciated/Needs Refactor
@@ -90,6 +91,8 @@ class PokemonSystem
     @enemy_wins = 0
     @sb_loopinput = 0
     @sb_loopbreaker = 0
+    @sd_nomoney = 0
+    @sd_wonderguard_hp = 0
 	
     # @unfusetraded = 0
     @sb_randomizeteam = 0
@@ -1106,6 +1109,12 @@ class ShowdownOptSc_3 < PokemonOption_Scene
                       ["Do not gain or lose money during Showdown battles",
                       "Allows the player to gain/lose money during Showdown battles"]
     )
+    options << EnumOption.new(_INTL("Wonderguard HP"), [_INTL("Off"), _INTL("On")],
+					  proc { $PokemonSystem.sd_wonderguard_hp },
+					  proc { |value| $PokemonSystem.sd_wonderguard_hp = value },
+					  ["Do not allow Pokémon to bypass the wonderguard 1 HP restriction",
+					  "Allows Pokémon to bypass the 1HP restriction for wonderguard users"]
+	  )
     # options << EnumOption.new(_INTL("Experience Gain"), [_INTL("Off"), _INTL("On")],
                       # proc { $PokemonSystem.sd_noexp },
                       # proc { |value| $PokemonSystem.sb_exp = value },
